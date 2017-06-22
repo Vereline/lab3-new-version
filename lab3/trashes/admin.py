@@ -6,3 +6,4 @@ from trashes.models import Trash
 
 # Register your models here.
 admin.site.register(Trash)
+# gimme the rainbow
