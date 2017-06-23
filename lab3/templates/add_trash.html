@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table >
+        <tbody>
+            <tr>
+                <td ><div><a href={% url 'main' %}>Home</a></div></td>
+{#                <td ><div><a href={% url 'task_list'%}>tack list</a></div></td>#}
+            </tr>
+        </tbody>
+    </table>
+<form method="Post" action="">
+    <table >
+        <tbody>
+        <tr>
+            <td >
+                {% csrf_token %}
+                {{ form }}
+            </td>
+            <td >
+                <input type="submit" value="Add trash">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+</body>
+</html>

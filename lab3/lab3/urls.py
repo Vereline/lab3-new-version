@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from trashes import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    # url(r'^$', views.trash_main(), name='trash_main'),
+    url(r'^$', views.Main.as_view(), name='main'),
+    url(r'^add_trash/$', views.AddTrash.as_view(), name='add_trash'),
+    url(r'^refresh_trash/(?P<pk>\d+)$', views.RefreshTrash.as_view(), name='refresh_trash'),
 ]

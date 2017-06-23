@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    <tbody>
+        <tr>
+            <td ><div><a href={% url 'add_trash'%}>Add new trash</a></div></td>
+{#            <td ><div><a href={% url 'task_list'%}>Task list</a></div></td>#}
+        </tr>
+    </tbody>
+    </table>
+{% for obj in object_list %}
+    <table>
+    <tbody>
+        <tr>
+{#            <td ><div><a href={% url 'detail' name=obj.name %}>{{ obj.name }}</a></div></td>#}
+            <td ><div>{{ obj.path }}</div></td>
+            <td ><div><a href={% url 'refresh_trash' pk=obj.pk %}>Refresh trash</a></div></td>
+{#            <td ><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete trash</a></div></td>#}
+        </tr>
+    </tbody>
+    </table>
+{% endfor %}
+
+<!--
+<div>
+                <h1><a href="">Django Girls Blog</a></h1>
+            </div>
+
+            <div>
+                <p>published: 14.06.2014, 12:14</p>
+                <h2><a href="">My first post</a></h2>
+                <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+            </div>
+
+            <div>
+                <p>published: 14.06.2014, 12:14</p>
+                <h2><a href="">My second post</a></h2>
+                <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut f.</p>
+            </div>
+-->
+</body>
+</html>
