@@ -1,0 +1,13 @@
+[Configs]
+path = /home/vereline/Trash
+trash_log_path = /home/vereline/Trash/Trash_log/Trash_log.json
+trash_log_path_txt = /home/vereline/Trash/Trash_log/Trash_log.txt
+trash_logging_path = /home/vereline/Trash/Trash_log/out.log
+policy_time = True
+policy_size = False
+max_size = 100000
+new_setting = -1
+current_size = 0
+max_capacity = 1000
+max_time = 7
+

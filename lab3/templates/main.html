@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Home</title>
 </head>
 <body>
 <table>
@@ -17,10 +17,10 @@
     <table>
     <tbody>
         <tr>
-{#            <td ><div><a href={% url 'detail' name=obj.name %}>{{ obj.name }}</a></div></td>#}
+            <td ><div><a href={% url 'define_action' name=obj.name %}>{{ obj.name }}</a></div></td>
             <td ><div>{{ obj.path }}</div></td>
             <td ><div><a href={% url 'refresh_trash' pk=obj.pk %}>Refresh trash</a></div></td>
-{#            <td ><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete trash</a></div></td>#}
+            <td ><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete trash</a></div></td>
         </tr>
     </tbody>
     </table>

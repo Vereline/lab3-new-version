@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task</title>
+</head>
+<body>
+{#    <tbody>#}
+{#        <tr>#}
+{#            <td ><div><a href={% url 'add_trash'%}>Add new trash</a></div></td>#}
+{#            <td ><div><a href={% url 'task_list'%}>Task list</a></div></td>#}
+{#        </tr>#}
+{#    </tbody>#}
+{#    </table>#}
+{% for obj in object_list %}
+    <table>
+    <tbody>
+        <tr>
+            <td ><div><a href={% url 'define_action' name=obj.name %}>{{ obj.name }}</a></div></td>
+            <td ><div>{{ obj.path }}</div></td>
+            <td ><div><a href={% url 'refresh_trash' pk=obj.pk %}>Refresh task</a></div></td>
+            <td ><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete task</a></div></td>
+        </tr>
+    </tbody>
+    </table>
+{% endfor %}
+
+
+
+</body>
+</html>

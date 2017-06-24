@@ -22,5 +22,12 @@ urlpatterns = [
     # url(r'^$', views.trash_main(), name='trash_main'),
     url(r'^$', views.Main.as_view(), name='main'),
     url(r'^add_trash/$', views.AddTrash.as_view(), name='add_trash'),
+    url(r'^tack_list/$', views.Task.as_view(), name='tack_list'),
+    url(r'^delete_trash/(?P<pk>\d+)$', views.DeleteTrash.as_view(), name='delete_trash'),
     url(r'^refresh_trash/(?P<pk>\d+)$', views.RefreshTrash.as_view(), name='refresh_trash'),
+    url(r'^define_action/(?P<name>[a-zA-Z0-9]+)$', views.define_action, name='define_action'),
+    # url(r'^define_action/delete/(?P<name>[a-zA-Z0-9]+)$', views.remove_file, name='delete'),
+    # url(r'^define_action/recover/(?P<name>[a-zA-Z0-9]+)$', views.recover, name='recover'),
+    # url(r'^define_action/rex/(?P<name>[a-zA-Z0-9]+)$', views.regular_expression, name='rex'),
+    # url(r'^define_action/clear/(?P<name>[a-zA-Z0-9]+)$', views.clean_trash, name='clear'),
 ]
