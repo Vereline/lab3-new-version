@@ -9,7 +9,7 @@ import os
 class Trash(models.Model):
     name = models.CharField(max_length=256)
     path = models.CharField(max_length=256)
-    info_path = models.CharField(max_length=256)
+    info_path = models.CharField(max_length=256, default=' ')
     maximum_size = models.IntegerField(default=1000)
     maximum_time = models.IntegerField(default=7)
     policy_time = models.BooleanField(default=False)
@@ -38,8 +38,8 @@ class TaskToDo(models.Model):
     )
 
     file_task = models.CharField(max_length=256, choices=tasks, default=None)
-    regular = models.CharField(max_length=256, default='')
-    info_path = models.CharField(max_length=256)
+    regular = models.CharField(max_length=256, default=' ')
+    info_path = models.CharField(max_length=256, default=' ')
     maximum_size = models.IntegerField(default=1000)
     maximum_time = models.IntegerField(default=7)
     task_is_done = models.BooleanField(default=False)

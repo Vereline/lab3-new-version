@@ -49,7 +49,8 @@ class RefreshTrash(UpdateView):
     success_url = reverse_lazy('main')
     template_name = "refresh_trash.html"
     model = Trash
-    fields = ('path', 'name', 'info_path', )
+    fields = ('name', 'path', 'info_path', 'maximum_size', 'maximum_time', 'policy_size',
+              'policy_time',)
 
 
 class DeleteTrash(DeleteView):
