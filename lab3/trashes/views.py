@@ -83,17 +83,18 @@ def define_action(request, name):
     #trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
     trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
     return render(request, "define_action.html", {"name": name, "trash_list": trash_list})
-#
-#
-# def remove_file(request, name):
-#     trash_object = get_object_or_404(Trash, name=name)
-#     trash_path = os.path.join(trash_object.path, "trash")
-#     path=request.POST['delete']
-#     info_path = os.path.join(trash_object.path, "info")
-#     #tack = Tack(tack='remove', target=path)
-#     #tack.save()
-#     #smartrm.remove(path, trash_path, info_path, dry=False)
-#     return define_action(request, name)
+
+
+def remove_file(request, name):
+    trash_object = get_object_or_404(Trash, name=name)
+    trash_path = os.path.join(trash_object.path, "trash")
+    path = request.POST.getlist('file')
+    print path
+    info_path = os.path.join(trash_object.path, "info")
+    #tack = Tack(tack='remove', target=path)
+    #tack.save()
+    #smartrm.remove(path, trash_path, info_path, dry=False)
+    return define_action(request, name)
 #
 # def recover(request, name):
 #     trash_object = get_object_or_404(Trash, name=name)

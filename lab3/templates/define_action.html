@@ -19,12 +19,16 @@
     <td >
     <!-- an hour video for django (blog in russian) tells about base.html-->
         {%  if trash_list %}
+            <form action="{% url 'remove' name %}" method="post">{% csrf_token %}
             <ul>
                 {% for obj in trash_list %}
                     <li>
-                        <p>{{ obj }}</p>
+                    <input type="checkbox" name="file" value="{{ obj }}">
+                        <a>{{ obj }}</a>
                     </li>
+
                 {% endfor %}
+            <input type="submit" value="Remove">
             </ul>
         {% else %}
             <p>Your trash is empty</p>
@@ -40,7 +44,8 @@
 {#        </ul>#}
 {#        <br>#}
 {#        <input type="submit" value="recover from trash">#}
-{#    </form>#}
+    </form>
+
     </td>
     </tr>
     <tr>
