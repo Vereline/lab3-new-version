@@ -24,6 +24,7 @@ class Trash(models.Model):
 
 class TaskToDo(models.Model):
     # file_task = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, default=' ')
     file_path = models.CharField(max_length=256, default=' ')
     trash = models.ForeignKey(Trash, default=None)
     force = models.BooleanField(default=False)
@@ -47,5 +48,5 @@ class TaskToDo(models.Model):
     class Meta:
         db_table = 'task'
 
-    # def __str__(self):              # __unicode__ on Python 2
-    #     return self.file_path
+    def __str__(self):              # __unicode__ on Python 2
+        return self.name

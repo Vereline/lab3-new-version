@@ -16,5 +16,5 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = TaskToDo
-        fields = ('file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
+        fields = ('name', 'file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
                   'task_is_done', 'maximum_time', 'maximum_size', 'trash', 'regular', )

@@ -1,0 +1,22 @@
+.words{
+    /*text-align: center;*/
+    margin-top: 0;
+    padding: 20px 20px 20px 40px;
+    color: #822585;
+    font-weight: 100;
+    font-size: large;
+    line-height: 120px;
+    font-family: 'cursive';
+}
+
+ .page-header {
+        background-color: #ff9400;
+        margin-top: 0;
+        padding: 20px 20px 20px 40px;
+
+    }
+
+
+td a {
+        color: #FCA205;
+    }

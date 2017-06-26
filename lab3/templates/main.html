@@ -1,26 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Home</title>#}
+{#</head>#}
+{#<body>#}
+{% extends 'base.html' %}
+{% block content %}
+{#     <div class="words">#}
+{#        <h1><a href="/">Django Girls Blog</a></h1>#}
+{#    </div>#}
 <table>
     <tbody>
         <tr>
-            <td ><div><a href={% url 'add_trash'%}>Add new trash</a></div></td>
-{#            <td ><div><a href={% url 'task_list'%}>Task list</a></div></td>#}
+            <td ><div class="words"><a href={% url 'add_trash'%}>Add new trash</a></div></td>
+            <td ><div class="words"><a href={% url 'add_task'%}>Add task</a></div></td>
+            <td ><div class="words"><a href={% url 'task_list'%}>Task list</a></div></td>
         </tr>
     </tbody>
     </table>
 {% for obj in object_list %}
-    <table>
+    <table style="margin-left: auto; margin-right: auto; background-color: #E0FFFF" width= 70%>
     <tbody>
         <tr>
-            <td ><div><a href={% url 'define_action' name=obj.name %}>{{ obj.name }}</a></div></td>
-            <td ><div>{{ obj.path }}</div></td>
-            <td ><div><a href={% url 'refresh_trash' pk=obj.pk %}>Refresh trash</a></div></td>
-            <td ><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete trash</a></div></td>
+            <td style="width: 100px; text-align: center"><div><a href={% url 'define_action' name=obj.name %}>{{ obj.name }}</a></div></td>
+            <td style="width: 100px; text-align: center"><div>{{ obj.path }}</div></td>
+            <td style="width: 100px; text-align: center"><div><a href={% url 'refresh_trash' pk=obj.pk %}>Refresh trash</a></div></td>
+            <td style="width: 100px; text-align: center"><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete trash</a></div></td>
         </tr>
     </tbody>
     </table>
@@ -43,5 +49,6 @@
                 <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut f.</p>
             </div>
 -->
-</body>
-</html>
+{% endblock %}
+{#</body>#}
+{#</html>#}

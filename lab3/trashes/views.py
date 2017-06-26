@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, render
 import os
 import smartrm.Trash as smartrm_trash
 # from smartrm.Trash import Trash
-from .forms import TrashForm
+from .forms import TrashForm, TaskForm
 from django.urls import reverse_lazy
 
 # Create your views here.
@@ -38,6 +38,11 @@ class Main(ListView):
     model = Trash
 
 
+class TaskList(ListView):
+    template_name = 'task_list.html'
+    model = TaskToDo
+
+
 class AddTrash(CreateView):
     success_url = reverse_lazy('main')
     template_name = "add_trash.html"
@@ -61,9 +66,30 @@ class DeleteTrash(DeleteView):
     fields = ('path', 'name', 'info_path',)
 
 
-class Task(ListView):
-    template_name = 'task_list.html'
+class AddTask(CreateView):
+    success_url = reverse_lazy('main')
+    template_name = 'add_task.html'
     model = TaskToDo
+    form_class = TaskForm
+    # fields = ('file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
+    #           'task_is_done', 'maximum_time', 'maximum_size', 'trash', 'regular',)
+
+
+class RefreshTask(UpdateView):
+    success_url = reverse_lazy('main')
+    template_name = "refresh_task.html"
+    model = TaskToDo
+    fields = ('name', 'file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
+              'task_is_done', 'maximum_time', 'maximum_size', 'trash', 'regular', )
+
+
+class DeleteTask(DeleteView):
+    success_url = reverse_lazy('main')
+    template_name = "delete_task.html"
+    model = TaskToDo
+    form_class = TaskForm
+    fields = ('name', 'file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
+              'task_is_done', 'maximum_time', 'maximum_size', 'trash', 'regular', )
 
 
 def define_action(request, name):
@@ -81,7 +107,7 @@ def define_action(request, name):
     # trash_path = os.path.join(trash_object.path, "trash")
     # info_path = os.path.join(trash_object.path, "info")
 
-    #trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
+    # trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
     trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
     return render(request, "define_action.html", {"name": name, "trash_list": trash_list})
 
@@ -92,20 +118,58 @@ def remove_file(request, name):
     path = request.POST.getlist('file')
     print path
     info_path = os.path.join(trash_object.path, "info")
-    #tack = Tack(tack='remove', target=path)
-    #tack.save()
+    print 'REMOVE'
     #smartrm.remove(path, trash_path, info_path, dry=False)
     return define_action(request, name)
-#
-# def recover(request, name):
-#     trash_object = get_object_or_404(Trash, name=name)
-#     trash_path = os.path.join(trash_object.path, "trash")
-#     info_path = os.path.join(trash_object.path, "info")
-#     target=request.POST['file']
-#    # tack = Tack(tack='recover', target=target)
-#    # tack.save()
-#    # smartrm.recover(target, trash_path, info_path, dry=False)
-#     return define_action(request, name)
+
+
+def recover_file(request, name):
+    trash_object = get_object_or_404(Trash, name=name)
+    trash_path = os.path.join(trash_object.path, "trash")
+    path = request.POST.getlist('file')
+    print path
+    info_path = os.path.join(trash_object.path, "info")
+    print 'RESTORE OR RECOVER'
+    #smartrm.recover(path, trash_path, info_path, dry=False)
+    return define_action(request, name)
+
+
+def do_the_task(request, name): #################? do define action for tasks
+    print 'do the task'
+    trash_task_object = get_object_or_404(TaskToDo, name=name)
+    print 'do the task'
+    trash = trash_task_object.trash
+    trash_folder = trash.path
+    print 'do the task'
+    trash_folder_info = trash.info_path
+    # add_trash(trash_fold)
+    print 'do the task'
+    trash = smartrm_trash.Trash(trash_folder, trash_folder_info,
+                                DEFAULT_CONFIG['trash_log_path_txt'],
+                                DEFAULT_CONFIG['policy_time'], DEFAULT_CONFIG['policy_size'],
+                                DEFAULT_CONFIG['max_size'],
+                                DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
+                                DEFAULT_CONFIG['max_time'],
+                                q=None)
+
+    # trash_path = os.path.join(trash_object.path, "trash")
+    # info_path = os.path.join(trash_object.path, "info")
+
+    # trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
+    trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
+    print 'do the task'
+    return render(request, "task_list.html", {"name": name, "trash_list": trash_list})
+
+
+    # trash_object = get_object_or_404(Trash, name=name)
+    # trash_path = os.path.join(trash_object.path, "trash")
+    # path = request.POST.getlist('file')
+    # print path
+    # info_path = os.path.join(trash_object.path, "info")
+    # print 'do this task'
+    # #smartrm.recover(path, trash_path, info_path, dry=False)
+    # return do_the_task(request, name)
+
 #
 #
 # def clean_trash(request, name):

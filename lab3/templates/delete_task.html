@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Refresh trash</title>
+    <title>Title</title>
 </head>
 <body>
 <table >
@@ -21,13 +21,11 @@
             <td>
                 {% csrf_token %}
                 {{ form }}
-            </td>
-            <td>
-                <input type="submit" value="Refresh trash">
+                <p>Are you sure you want to delete "{{ object }}"?</p>
+                <input type="submit" value="Delete task">
             </td>
         </tr>
         </tbody>
     </table>
-</form>
 </body>
 </html>
