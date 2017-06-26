@@ -14,8 +14,8 @@
             </tr>
         </tbody>
     </table>
- {% if object_list %}
-{% for obj in object_list %}
+ {% if tasktodo_list %}
+{% for obj in tasktodo_list %}
     <table style="margin-left: auto; margin-right: auto; background-color: #E0FFFF" width= 70%>
     <tbody>
         <tr>
@@ -25,7 +25,7 @@
 {#                <div>#}
 {#                    <a href={% url 'do_the_task' name=obj.name %}>Do the task</a>#}
 {#                </div>#}
-            <form action="{% url 'do_the_task' name=obj.name %}" method="post">{% csrf_token %}
+            <form action="{% url 'do_the_task' pk=obj.pk %}" method="post">{% csrf_token %}
             <input type="submit" value="Do it">
 
              </form>

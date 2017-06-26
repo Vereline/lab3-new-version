@@ -134,9 +134,9 @@ def recover_file(request, name):
     return define_action(request, name)
 
 
-def do_the_task(request, name): #################? do define action for tasks
+def do_the_task(request, pk): #################? do define action for tasks
     print 'do the task'
-    trash_task_object = get_object_or_404(TaskToDo, name=name)
+    trash_task_object = get_object_or_404(TaskToDo, pk=pk)
     print 'do the task'
     trash = trash_task_object.trash
     trash_folder = trash.path
@@ -158,7 +158,7 @@ def do_the_task(request, name): #################? do define action for tasks
     # trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
     trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
     print 'do the task'
-    return render(request, "task_list.html", {"name": name, "trash_list": trash_list})
+    return render(request, "task_list.html", {"name": pk, "trash_list": trash_list})
 
 
     # trash_object = get_object_or_404(Trash, name=name)

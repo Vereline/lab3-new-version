@@ -31,6 +31,6 @@ urlpatterns = [
     url(r'^define_action/(?P<name>[a-zA-Z0-9]+)$', views.define_action, name='define_action'),
     url(r'^define_action/remove/(?P<name>[a-zA-Z0-9]+)$', views.remove_file, name='remove'),
     url(r'^define_action/recover/(?P<name>[a-zA-Z0-9]+)$', views.recover_file, name='recover'),
-    url(r'^task_list/do_the_task/(?P<name>[a-zA-Z0-9]+)$', views.do_the_task, name='do_the_task'),
+    url(r'^task_list/do_the_task/(?P<pk>[a-zA-Z0-9]+)$', views.do_the_task, name='do_the_task'),
 
 ]
