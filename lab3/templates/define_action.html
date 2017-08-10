@@ -1,14 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Define action</title>
-</head>
-<body>
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Define action</title>#}
+{#</head>#}
+{#<body>#}
+{% extends 'base.html' %}
+{% block content %}
     <table >
         <tbody>
             <tr>
-                <td ><div><a href={% url 'main' %}>Home</a></div></td>
+                <td ><div class="words"><a href={% url 'main' %}>Home</a></div></td>
 {#                <td ><div><a href={% url 'task_list'%}>Task list</a></div></td>#}
             </tr>
         </tbody>
@@ -77,5 +79,7 @@
     </tr>
     </tbody>
     </table>
-</body>
-</html>
+{% endblock %}
+
+{#</body>#}
+{#</html>#}

@@ -1,14 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Title</title>#}
+{#</head>#}
+{#<body>#}
+{% extends 'base.html' %}
+{% block content %}
     <table>
         <tbody>
             <tr>
-                <td ><div><a href={% url 'main' %}>Home</a></div></td>
+                <td ><div class="words"><a href={% url 'main' %}>Home</a></div></td>
             </tr>
         </tbody>
     </table>
@@ -16,5 +18,7 @@
     {{ form.as_p }}
     <input type="submit" value="Create Task">
 </form>
-</body>
-</html>
+{% endblock %}
+
+{#</body>#}
+{#</html>#}

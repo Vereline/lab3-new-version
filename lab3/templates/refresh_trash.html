@@ -1,16 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Refresh trash</title>
-</head>
-<body>
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Refresh trash</title>#}
+{#</head>#}
+{#<body>#}
+{% extends 'base.html' %}
+{% block content %}
 <table >
         <tbody>
             <tr>
-                <td ><div><a href={% url 'main' %}>Home</a></div></td>
-                <td ><div><a href={% url 'add_trash' %}>Add trash</a></div></td>
-                <td ><div><a href={% url 'task_list'%}>task list</a></div></td>
+                <td ><div class="words"><a href={% url 'main' %}>Home</a></div></td>
+                <td ><div class="words"><a href={% url 'add_trash' %}>Add trash</a></div></td>
+                <td ><div class="words"><a href={% url 'task_list'%}>task list</a></div></td>
             </tr>
         </tbody>
     </table>
@@ -29,5 +31,7 @@
         </tbody>
     </table>
 </form>
-</body>
-</html>
+{% endblock %}
+
+{#</body>#}
+{#</html>#}

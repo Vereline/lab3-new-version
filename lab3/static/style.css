@@ -10,13 +10,17 @@
 }
 
  .page-header {
-        background-color: #ff9400;
+        background-color: #567789;
         margin-top: 0;
         padding: 20px 20px 20px 40px;
-
+        font-family: 'cursive';
     }
 
 
 td a {
-        color: #FCA205;
+        background-color: #ff9400;
+        margin-top: 0;
+        padding: 20px 20px 20px 40px;
+        color: #578965;
+        font-family: 'cursive';
     }
