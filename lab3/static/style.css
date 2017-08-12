@@ -1,12 +1,12 @@
 .words{
     /*text-align: center;*/
-    margin-top: 0;
+    /*margin-top: 0;*/
     padding: 20px 20px 20px 40px;
-    color: #822585;
+    /*color: #822585;*/
     font-weight: 100;
     font-size: large;
-    line-height: 120px;
-    font-family: 'cursive';
+    /*line-height: 120px;*/
+    /*font-family: 'cursive';*/
 }
 
  .page-header {
@@ -14,13 +14,24 @@
         margin-top: 0;
         padding: 20px 20px 20px 40px;
         font-family: 'cursive';
+
     }
 
 
 td a {
-        background-color: #ff9400;
+        /*background-color: #ff9400;*/
         margin-top: 0;
-        padding: 20px 20px 20px 40px;
+        padding: 10px 10px 10px 10px;
         color: #578965;
+        font-family: 'cursive';
+    }
+
+ p{
+        /*background-color: #ff9400;*/
+        margin-top: 0;
+        margin-bottom: 0;
+        /*padding: 10px 10px 10px 10px;*/
+     font-size: medium;
+        color: #822585;
         font-family: 'cursive';
     }

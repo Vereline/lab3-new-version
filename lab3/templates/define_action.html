@@ -24,12 +24,13 @@
             <form action="{% url 'remove' name %}" method="post">{% csrf_token %}
             <ul>
                 {% for obj in trash_list %}
-                    <li>
+                    <label>
                     <input type="checkbox" name="file" value="{{ obj }}">
-                        <a>{{ obj }}</a>
-                    </li>
+                        {{ obj }}
+                    </label>
 
                 {% endfor %}
+            <p></p>
             <input type="submit" value="Remove">
             </ul>
              </form>
