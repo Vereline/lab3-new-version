@@ -47,7 +47,7 @@ class Trash(object):
             print 'clean trash'
         else:
             d = os.listdir(self.path)
-            for item in d:
+            for item in d:  # DO HERE PARALLEL
                 subpath = os.path.join(self.path, item)  # form the address
                 dict_contains = False
                 for _dict in self.log_writer.file_dict_arr:
@@ -68,6 +68,7 @@ class Trash(object):
                 except Exception as ex:
                     logging.error(ex.message)
 
+            # WHY THEY ARE COMMENTED?????????????
             # logging.info("Clean information about files".format())
             # clean_json = open(self.log_writer.file_dict_path, 'w')
             # clean_json.close()
@@ -76,6 +77,8 @@ class Trash(object):
 
     def delete_manually(self, path, dry_run, verbose):  # not checked
         # delete one file manually
+
+        # START LOCK
         files_id = self.search_for_all_files_with_this_name(path)
         if len(files_id) > 1:
             logging.warning('Found more than 1 file with name {name}'.format(name=path))
@@ -120,6 +123,8 @@ class Trash(object):
                 logging.error(ex.msg)
             except Exception as ex:
                 logging.error(ex.message)
+            # END LOCK
+
 
     def get_path_by_id(self, file_id, path):  # not checked
         d = os.listdir(path)
@@ -149,7 +154,7 @@ class Trash(object):
             print 'restore the whole trash'
         else:
             d = os.listdir(self.path)
-            for item in d:
+            for item in d: # DO HERE PARRALEL
                 subpath = os.path.join(self.path, item)  # form the address
                 dict_contains = False
                 for _dict in self.log_writer.file_dict_arr:
@@ -161,8 +166,8 @@ class Trash(object):
                         subpath = os.path.split(subpath)
                         # subpath = self.get_path_by_id(subpath[1], subpath[0])
                         logging.info("Restore item".format())
-                        path = self.log_writer.get_name(subpath[1])
-                        self.restore_trash_manually(path, dry_run, verbose)
+                        path = self.log_writer.get_name(subpath[1])  # START LOCK
+                        self.restore_trash_manually(path, dry_run, verbose)  # END LOCK
                         # if verbose:
                         #     print 'item restored'
                 except ExeptionListener.TrashError as ex:
@@ -179,6 +184,7 @@ class Trash(object):
         # restore one file in the trash
         # check if the path already exists
 
+        # start lock
         files_id = self.search_for_all_files_with_this_name(path)
         if len(files_id) > 1:
             logging.warning('Found more than 1 file with name {name}'.format(name=path))
@@ -233,6 +239,7 @@ class Trash(object):
                 self.log_writer.write_to_txt(dry_run)
                 if verbose:
                     print 'item restored'
+            # end lock
 
     def define_time_policy(self, dry_run, verbose):
         d = os.listdir(self.path)
@@ -360,7 +367,7 @@ class Trash(object):
 
     def restore_by_regular(self, regex, dry_run, interactive, verbose):  # not tested
         names, ids = self.get_names_by_regular(regex)
-
+        # do here parallel
         for file_id in ids:
             clean_path = self.get_path_by_id(file_id, self.path)
             destination_path = self.log_writer.get_path(file_id)
@@ -381,7 +388,7 @@ class Trash(object):
             dirname = clean_path[:(index + 1)] + new_name
             logging.info("Rename {file}".format(file=new_name))
             logging.info("Move to original directory {file}".format(file=new_name))
-
+            # start lock
             if os.path.exists(destination_path):
                 logging.warning('Item with this name already exists.id will be added to real name')
                 destination_path += '_' + file_id
@@ -427,10 +434,11 @@ class Trash(object):
                         logging.error(ex.msg)
                     except Exception as ex:
                         logging.error(ex.message)
+                        # end lock
 
     def clean_by_regular(self, regex, dry_run, verbose, interactive):  # not tested
         names, ids = self.get_names_by_regular(regex)
-
+        # do here not cycle but parallel
         for file_id in ids:
             clean_path = self.get_path_by_id(file_id, self.path)
             name = self.log_writer.get_name(file_id)
@@ -439,6 +447,7 @@ class Trash(object):
                 answer = self.ask_for_confirmation(name)
             if (answer is not None) and (answer is False):
                 continue
+            # start lock
             if os.path.isdir(clean_path):
                 logging.info("Remove directory {item}".format(item=name))
                 if not dry_run:
@@ -467,7 +476,7 @@ class Trash(object):
                     self.log_writer.write_to_txt(dry_run)
                 else:
                     print 'remove item'
-
+            # finish lock
 
 def ask_for_confirmation(filename, silent=False):
     answer = raw_input('Operation with {filename}. Are you sure? [y/n]\n'.format(filename=filename))

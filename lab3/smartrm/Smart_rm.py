@@ -28,12 +28,14 @@ class SmartRm(object):
                 logging.error('Item {file} is a system unit'.format(file=item))
             else:
                 # remove all the check to the trash or to the smart rm
+                # start lock
                 file_id = trash.log_writer.create_file_dict(item)
                 item = rename_file_name_to_id(item, file_id, dry_run)
                 self.remove_to_trash_file(item, dry_run, verbose)
 
                 trash.log_writer.write_to_json(dry_run)
                 trash.log_writer.write_to_txt(dry_run)
+                # end lock
 
     def operate_with_regex_removal(self, element, interactive, trash, exit_codes, dry_run, verbose):
         items = Regular.define_regular_path(element)
@@ -52,11 +54,13 @@ class SmartRm(object):
                     logging.error('Item {file} is a system unit'.format(file=item))
                     # exception
                 else:
+                    # start lock
                     file_id = trash.log_writer.create_file_dict(item)
                     item = rename_file_name_to_id(item, file_id, dry_run)
                     self.remove_to_trash_file(item, dry_run, verbose)
                     trash.log_writer.write_to_json(dry_run)
                     trash.log_writer.write_to_txt(dry_run)
+                    # end lock
 
     def remove_to_trash_file(self, path, dry_run, verbose):  # works
         logging.info('Remove {path}'.format(path=path))

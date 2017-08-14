@@ -3,6 +3,7 @@
 
 import threading
 
+
 class WorkingThread(threading.Thread):
     def __init__(self, filename_list, filename_list_lock):
         super(WorkingThread, self).__init__()
@@ -17,13 +18,13 @@ class WorkingThread(threading.Thread):
             self.retrieve_filename(next_filename)
 
     def grab_next_filename(self):
-        self.filename_list_lock.acquire(1)
+        self.filename_list_lock.acquire(1)  # start the lock section
         if len(self.filename_list) < 1:
             next_filename = None
         else:
             next_filename = self.filename_list[0]
             del self.filename_list[0]
-        self.filename_list_lock.release()
+        self.filename_list_lock.release()  # finish the lock section
 
         return next_filename
 
@@ -37,14 +38,18 @@ class WorkingThread(threading.Thread):
 def parallel_remove():
     pass
 
+
 def parallel_restore():
     pass
+
 
 def parallel_regex_remove():
     pass
 
+
 def parallel_searching_directories():
     pass
+
 
 def parallel_regex_restore():
     pass
