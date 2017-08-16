@@ -69,11 +69,11 @@ class Trash(object):
                     logging.error(ex.message)
 
             # WHY THEY ARE COMMENTED?????????????
-            # logging.info("Clean information about files".format())
-            # clean_json = open(self.log_writer.file_dict_path, 'w')
-            # clean_json.close()
-            # clean_txt = open(self.log_writer.file_dict_path_txt, 'w')
-            # clean_txt.close()
+            logging.info("Clean information about files".format())
+            clean_json = open(self.log_writer.file_dict_path, 'w')
+            clean_json.close()
+            clean_txt = open(self.log_writer.file_dict_path_txt, 'w')
+            clean_txt.close()
 
     def delete_manually(self, path, dry_run, verbose):  # not checked
         # delete one file manually

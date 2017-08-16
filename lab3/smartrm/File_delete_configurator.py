@@ -16,6 +16,7 @@ import Regular
 import Logger
 import logging
 import Config_parser
+import threading
 
 
 # rename here deleted file to the id
@@ -32,6 +33,20 @@ DEFAULT_CONFIG = {
     "max_capacity": 1000,
     "max_time": 7
 }
+
+
+class RemoveThread(threading.Thread):
+    def __init__(self, item, exit_codes, trash, dry_run, verbose, smartrm):
+        super(RemoveThread, self).__init__()
+        self.item = item
+        self.e_c = exit_codes
+        self.trash = trash
+        self.dry_run = dry_run
+        self.verbose = verbose
+        self.smartrm = smartrm
+
+    def run(self):
+        self.smartrm.operate_with_removal(self.item, self.e_c, self.trash, self.dry_run, self.verbose)
 
 
 class FileDeleteConfigurator(object):
@@ -152,13 +167,35 @@ class FileDeleteConfigurator(object):
         logging.info('Define action')
         if self.argparser.args.remove is not None:
 
+            # for item in self.paths:
+            #     if self.interactive:
+            #         answer = self.ask_for_confirmation(item)
+            #         if not answer:
+            #             continue
+            #     self.smartrm.operate_with_removal(item, self.exit_codes, self.trash, self.dry_run, self.verbose)
+            #     #############################
+            removal_threads = []
             for item in self.paths:
                 if self.interactive:
                     answer = self.ask_for_confirmation(item)
-                    if not answer:
-                        continue
-                self.smartrm.operate_with_removal(item, self.exit_codes, self.trash, self.dry_run, self.verbose)
+                    if answer:
+                        new_thread = RemoveThread(item, self.exit_codes, self.trash, self.dry_run, self.verbose,
+                                                  self.smartrm)
+                        removal_threads.append(new_thread)
+                        #continue
+                else:
+                    new_thread = RemoveThread(item, self.exit_codes, self.trash, self.dry_run, self.verbose,
+                                              self.smartrm)
+                    removal_threads.append(new_thread)
+                    # continue
+
+            for removal_thread in removal_threads:
+                removal_thread.start()
+
+            for removal_thread in removal_threads:
+                removal_thread.join()
                 #############################
+
 
         elif self.argparser.args.remove_regular is not None:
             # do here regular check

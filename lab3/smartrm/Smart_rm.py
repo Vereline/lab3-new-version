@@ -10,6 +10,7 @@ import re
 import Logger
 import logging
 import Regular
+import threading
 
 
 class SmartRm(object):
@@ -17,6 +18,7 @@ class SmartRm(object):
         self.trash_path = path
         self.exception_listener = ExeptionListener.ExceptionListener
         self.ask_for_confirmation = q
+        self.lock = threading.Lock()
 
     def operate_with_removal(self, item, exit_codes, trash, dry_run, verbose):
         exists = check_file_path(item)
@@ -29,12 +31,16 @@ class SmartRm(object):
             else:
                 # remove all the check to the trash or to the smart rm
                 # start lock
-                file_id = trash.log_writer.create_file_dict(item)
-                item = rename_file_name_to_id(item, file_id, dry_run)
-                self.remove_to_trash_file(item, dry_run, verbose)
+                self.lock.acquire()
+                try:
+                    file_id = trash.log_writer.create_file_dict(item)
+                    item = rename_file_name_to_id(item, file_id, dry_run)
+                    self.remove_to_trash_file(item, dry_run, verbose)
 
-                trash.log_writer.write_to_json(dry_run)
-                trash.log_writer.write_to_txt(dry_run)
+                    trash.log_writer.write_to_json(dry_run)
+                    trash.log_writer.write_to_txt(dry_run)
+                finally:
+                    self.lock.release()
                 # end lock
 
     def operate_with_regex_removal(self, element, interactive, trash, exit_codes, dry_run, verbose):
