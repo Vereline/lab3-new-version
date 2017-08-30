@@ -49,6 +49,23 @@ class RemoveThread(threading.Thread):
         self.smartrm.operate_with_removal(self.item, self.e_c, self.trash, self.dry_run, self.verbose)
 
 
+class RemoveRegularThread(threading.Thread):
+    def __init__(self, item, interactive, exit_codes, trash, dry_run, verbose, smartrm):
+        super(RemoveRegularThread, self).__init__()
+        self.item = item
+        self.e_c = exit_codes
+        self.trash = trash
+        self.dry_run = dry_run
+        self.verbose = verbose
+        self.smartrm = smartrm
+        self.trash = trash
+        self.interactive = interactive
+
+    def run(self):
+        self.smartrm.operate_with_regex_removal(self.item, self.interactive, self.trash,
+                                                self.e_c, self.dry_run, self.verbose)
+
+
 class FileDeleteConfigurator(object):
     def __init__(self, argparser, paths):
         self.argparser = argparser
@@ -196,12 +213,33 @@ class FileDeleteConfigurator(object):
                 removal_thread.join()
                 #############################
 
-
         elif self.argparser.args.remove_regular is not None:
             # do here regular check
             for element in self.paths:
-                self.smartrm.operate_with_regex_removal(element, self.interactive, self.trash,
-                                                        self.exit_codes, self.dry_run, self.verbose)
+                items = Regular.define_regular_path(element)
+
+                removal_threads = []
+
+                for item in items:
+                    # if self.interactive:
+                    #     answer = self.ask_for_confirmation(item)
+                    #     if answer:
+                    new_thread = RemoveRegularThread(item, self.interactive, self.exit_codes, self.trash, self.dry_run,
+                                                     self.verbose, self.smartrm)
+                    removal_threads.append(new_thread)
+                    # continue
+
+                for removal_thread in removal_threads:
+                    removal_thread.start()
+
+                for removal_thread in removal_threads:
+                    removal_thread.join()
+                    ######################
+
+            #
+            # for element in self.paths:
+            #     self.smartrm.operate_with_regex_removal(element, self.interactive, self.trash,
+            #                                             self.exit_codes, self.dry_run, self.verbose)
 
         elif self.argparser.args.clean is not None:
             if self.interactive:

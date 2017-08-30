@@ -43,13 +43,13 @@ class SmartRm(object):
                     self.lock.release()
                 # end lock
 
-    def operate_with_regex_removal(self, element, interactive, trash, exit_codes, dry_run, verbose):
-        items = Regular.define_regular_path(element)
-        for item in items:
+    def operate_with_regex_removal(self, item, interactive, trash, exit_codes, dry_run, verbose):
+        # items = Regular.define_regular_path(element)
+        # for item in items:
             if interactive:
                 answer = self.ask_for_confirmation(item)
                 if not answer:
-                    continue
+                    return
             exists = check_file_path(item)
             if not exists:
                 logging.error('File {file} does not exist'.format(file=item))
@@ -61,11 +61,15 @@ class SmartRm(object):
                     # exception
                 else:
                     # start lock
-                    file_id = trash.log_writer.create_file_dict(item)
-                    item = rename_file_name_to_id(item, file_id, dry_run)
-                    self.remove_to_trash_file(item, dry_run, verbose)
-                    trash.log_writer.write_to_json(dry_run)
-                    trash.log_writer.write_to_txt(dry_run)
+                    self.lock.acquire()
+                    try:
+                        file_id = trash.log_writer.create_file_dict(item)
+                        item = rename_file_name_to_id(item, file_id, dry_run)
+                        self.remove_to_trash_file(item, dry_run, verbose)
+                        trash.log_writer.write_to_json(dry_run)
+                        trash.log_writer.write_to_txt(dry_run)
+                    finally:
+                        self.lock.release()
                     # end lock
 
     def remove_to_trash_file(self, path, dry_run, verbose):  # works

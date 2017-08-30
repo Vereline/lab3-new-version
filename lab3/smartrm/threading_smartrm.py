@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import threading
-
+# потом из file delete configurator копирнуть все функции, которые я потестила в консольной версии file delete configurator , ток не через if, а через отдельные функции
 
 class WorkingThread(threading.Thread):
     def __init__(self, filename_list, filename_list_lock):

@@ -10,6 +10,7 @@ import logging
 import Regular
 import re
 import ExeptionListener
+import threading
 
 
 class Trash(object):
@@ -39,6 +40,7 @@ class Trash(object):
         self.max_capacity = int(capacity)  # the max quantity of files in trash
         self.max_time = int(time)
         self.ask_for_confirmation = q
+        self.lock = threading.Lock()
 
     def delete_automatically(self, dry_run, verbose):  # works
         # delete the whole trash
@@ -61,13 +63,13 @@ class Trash(object):
                             shutil.rmtree(subpath)
                         elif not os.path.isdir(subpath):
                             os.remove(subpath)
-                    if verbose:
-                        print 'trash cleaned'
+
                 except ExeptionListener.TrashError as ex:
                     logging.error(ex.msg)
                 except Exception as ex:
                     logging.error(ex.message)
-
+            if verbose:
+                print 'trash cleaned'
             # WHY THEY ARE COMMENTED?????????????
             logging.info("Clean information about files".format())
             clean_json = open(self.log_writer.file_dict_path, 'w')
@@ -79,52 +81,55 @@ class Trash(object):
         # delete one file manually
 
         # START LOCK
-        files_id = self.search_for_all_files_with_this_name(path)
+        files_id = self.search_for_all_files_with_this_name(path)  # some problems with functions defined
         if len(files_id) > 1:
             logging.warning('Found more than 1 file with name {name}'.format(name=path))
         elif len(files_id) <= 0:
             logging.warning('There is no such file or directory')
             return
 
-        for file_id in files_id:
-            # file_id = self.log_writer.get_id(path)
-            clean_path = self.get_path_by_id(file_id, self.path)
-            ans = True
-            if len(files_id) > 1:
-                logging.info('Restore {name}, id = {id}?'.format(name=path, id=file_id))
-                ans = self.ask_for_confirmation(path)
-            if not ans:
-                continue
-            try:
-                if os.path.isdir(clean_path):
-                    logging.info("Remove directory".format())
-                    if dry_run:
-                        print 'remove directory'
-                    else:
-                        if check_file_path(clean_path):
-                            shutil.rmtree(clean_path)
+        self.lock.acquire()
+        try:
+            for file_id in files_id:
+                # file_id = self.log_writer.get_id(path)
+                clean_path = self.get_path_by_id(file_id, self.path)
+                ans = True
+                if len(files_id) > 1:
+                    logging.info('Restore {name}, id = {id}?'.format(name=path, id=file_id))
+                    ans = self.ask_for_confirmation(path)
+                if not ans:
+                    continue
+                try:
+                    if os.path.isdir(clean_path):
+                        logging.info("Remove directory".format())
+                        if dry_run:
+                            print 'remove directory'
                         else:
-                            logging.error('File {n} with id {id} does not exist'.format(n=path, id=file_id))
-                elif not os.path.isdir(clean_path):
-                    logging.info("Remove file".format())
-                    if dry_run:
-                        print 'remove file'
-                    else:
-                        if check_file_path(clean_path):
-                            os.remove(clean_path)
+                            if check_file_path(clean_path):
+                                shutil.rmtree(clean_path)
+                            else:
+                                logging.error('File {n} with id {id} does not exist'.format(n=path, id=file_id))
+                    elif not os.path.isdir(clean_path):
+                        logging.info("Remove file".format())
+                        if dry_run:
+                            print 'remove file'
                         else:
-                            logging.error('File {n} with id {id} does not exist'.format(n=path, id=file_id))
-                    if verbose:
-                        print 'item removed'
-                self.log_writer.delete_elem_by_id(file_id)
-                self.log_writer.write_to_json(dry_run)
-                self.log_writer.write_to_txt(dry_run)
-            except ExeptionListener.TrashError as ex:
-                logging.error(ex.msg)
-            except Exception as ex:
-                logging.error(ex.message)
-            # END LOCK
-
+                            if check_file_path(clean_path):
+                                os.remove(clean_path)
+                            else:
+                                logging.error('File {n} with id {id} does not exist'.format(n=path, id=file_id))
+                        if verbose:
+                            print 'item removed'
+                    self.log_writer.delete_elem_by_id(file_id)
+                    self.log_writer.write_to_json(dry_run)
+                    self.log_writer.write_to_txt(dry_run)
+                except ExeptionListener.TrashError as ex:
+                    logging.error(ex.msg)
+                except Exception as ex:
+                    logging.error(ex.message)
+                # END LOCK
+        finally:
+            self.lock.release()
 
     def get_path_by_id(self, file_id, path):  # not checked
         d = os.listdir(path)
