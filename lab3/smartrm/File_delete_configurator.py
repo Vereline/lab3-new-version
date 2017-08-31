@@ -66,6 +66,32 @@ class RemoveRegularThread(threading.Thread):
                                                 self.e_c, self.dry_run, self.verbose)
 
 
+class RemoveTrashItemThread(threading.Thread):
+    def __init__(self, item, trash, dry_run, verbose):
+        super(RemoveTrashItemThread, self).__init__()
+        self.item = item
+        self.trash = trash
+        self.dry_run = dry_run
+        self.verbose = verbose
+        self.trash = trash
+
+    def run(self):
+        self.trash.delete_manually(self.item, self.dry_run, self.verbose)
+
+
+class RestoreTrashItemThread(threading.Thread):
+    def __init__(self, item, trash, dry_run, verbose):
+        super(RestoreTrashItemThread, self).__init__()
+        self.item = item
+        self.trash = trash
+        self.dry_run = dry_run
+        self.verbose = verbose
+        self.trash = trash
+
+    def run(self):
+        self.trash.restore_trash_manually(self.item, self.dry_run, self.verbose)
+
+
 class FileDeleteConfigurator(object):
     def __init__(self, argparser, paths):
         self.argparser = argparser
@@ -242,7 +268,7 @@ class FileDeleteConfigurator(object):
             #                                             self.exit_codes, self.dry_run, self.verbose)
 
         elif self.argparser.args.clean is not None:
-            if self.interactive:
+            if self.interactive:  #?????
                 answer = self.ask_for_confirmation('trash')
                 if answer:
                     self.trash.delete_automatically(self.dry_run, self.verbose)
@@ -251,15 +277,37 @@ class FileDeleteConfigurator(object):
                 self.trash.delete_automatically(self.dry_run, self.verbose)
 
         elif self.argparser.args.restore is not None:
+
+            removal_threads = []
             for item in self.paths:
                 if self.interactive:
                     answer = self.ask_for_confirmation(item)
-                    if not answer:
-                        continue
-                self.trash.restore_trash_manually(item, self.dry_run, self.verbose)
+                    if answer:
+                        new_thread = RestoreTrashItemThread(item, self.trash, self.dry_run, self.verbose)
+                        removal_threads.append(new_thread)
+                        # continue
+                else:
+                    new_thread = RestoreTrashItemThread(item, self.trash, self.dry_run, self.verbose)
+                    removal_threads.append(new_thread)
+                    # continue
+
+            for removal_thread in removal_threads:
+                removal_thread.start()
+
+            for removal_thread in removal_threads:
+                removal_thread.join()
+                #############################
+
+
+                # for item in self.paths:
+            #     if self.interactive:
+            #         answer = self.ask_for_confirmation(item)
+            #         if not answer:
+            #             continue
+            #     self.trash.restore_trash_manually(item, self.dry_run, self.verbose)
 
         elif self.argparser.args.restore_all is not None:
-            if self.interactive:
+            if self.interactive:  #????
                 answer = self.ask_for_confirmation('trash')
                 if answer:
                     self.trash.restore_trash_automatically(self.dry_run, self.verbose)
@@ -271,13 +319,32 @@ class FileDeleteConfigurator(object):
                 #     print 'trash restored'
 
         elif self.argparser.args.remove_from_trash is not None:
-
+            removal_threads = []
             for item in self.paths:
                 if self.interactive:
                     answer = self.ask_for_confirmation(item)
-                    if not answer:
-                        continue
-                self.trash.delete_manually(item, self.dry_run, self.verbose)
+                    if answer:
+                        new_thread = RemoveTrashItemThread(item, self.trash, self.dry_run, self.verbose)
+                        removal_threads.append(new_thread)
+                        # continue
+                else:
+                    new_thread = RemoveTrashItemThread(item, self.trash, self.dry_run, self.verbose)
+                    removal_threads.append(new_thread)
+                    # continue
+
+            for removal_thread in removal_threads:
+                removal_thread.start()
+
+            for removal_thread in removal_threads:
+                removal_thread.join()
+                #############################
+
+                # for item in self.paths:
+            #     if self.interactive:
+            #         answer = self.ask_for_confirmation(item)
+            #         if not answer:
+            #             continue
+            #     self.trash.delete_manually(item, self.dry_run, self.verbose)
                 # if self.verbose:
                 #     print item + ' removed'
 

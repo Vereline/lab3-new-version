@@ -197,53 +197,58 @@ class Trash(object):
             logging.warning('There is no such file or directory')
             return
 
-        for file_id in files_id:
-            ans = True
-        # file_id = self.log_writer.get_id(path)
-        # file_id = os.path.split(path)[1]
-            clean_path = self.get_path_by_id(file_id, self.path)
-            destination_path = self.log_writer.get_path(file_id)
-            new_name = self.log_writer.get_name(file_id)
-            if len(files_id) > 1:
-                logging.info('Restore {name}, id = {id}?'.format(name=new_name, id=file_id))
-                ans = self.ask_for_confirmation(new_name)
-            if not ans:
-                continue
+        self.lock.acquire()
+        try:
 
-            logging.info("Operations with file {file}".format(file=new_name))
-            index = 0
-            if not check_file_path(clean_path):
-                logging.error('File {name} with id {id} does not exist'.format(name=new_name, id=file_id))
-                self.log_writer.delete_elem_by_id(file_id)
-                self.log_writer.write_to_json(dry_run)
-                self.log_writer.write_to_txt(dry_run)
-                continue
+            for file_id in files_id:
+                ans = True
+            # file_id = self.log_writer.get_id(path)
+            # file_id = os.path.split(path)[1]
+                clean_path = self.get_path_by_id(file_id, self.path)
+                destination_path = self.log_writer.get_path(file_id)
+                new_name = self.log_writer.get_name(file_id)
+                if len(files_id) > 1:
+                    logging.info('Restore {name}, id = {id}?'.format(name=new_name, id=file_id))
+                    ans = self.ask_for_confirmation(new_name)
+                if not ans:
+                    continue
 
-            for i in reversed(range(len(clean_path))):
-                if clean_path[i] == '/':
-                    index = i
-                    break
-            dirname = clean_path[:(index + 1)] + new_name
-            logging.info("Rename {file}".format(file=new_name))
-            logging.info("Move to original directory {file}".format(file=new_name))
-
-            if os.path.exists(destination_path):
-                logging.warning('Item with this name already exists.id will be added to real name')
-                destination_path += '_' + file_id
-            if dry_run:
-                print 'rename file and move to original directory'
-                print 'clean record from json'
-            else:
-                if check_file_path(clean_path):
-                    os.rename(clean_path, dirname)
-                    shutil.move(dirname, destination_path)
-                else:
+                logging.info("Operations with file {file}".format(file=new_name))
+                index = 0
+                if not check_file_path(clean_path):
                     logging.error('File {name} with id {id} does not exist'.format(name=new_name, id=file_id))
-                self.log_writer.delete_elem_by_id(file_id)
-                self.log_writer.write_to_json(dry_run)
-                self.log_writer.write_to_txt(dry_run)
-                if verbose:
-                    print 'item restored'
+                    self.log_writer.delete_elem_by_id(file_id)
+                    self.log_writer.write_to_json(dry_run)
+                    self.log_writer.write_to_txt(dry_run)
+                    continue
+
+                for i in reversed(range(len(clean_path))):
+                    if clean_path[i] == '/':
+                        index = i
+                        break
+                dirname = clean_path[:(index + 1)] + new_name
+                logging.info("Rename {file}".format(file=new_name))
+                logging.info("Move to original directory {file}".format(file=new_name))
+
+                if os.path.exists(destination_path):
+                    logging.warning('Item with this name already exists.id will be added to real name')
+                    destination_path += '_' + file_id
+                if dry_run:
+                    print 'rename file and move to original directory'
+                    print 'clean record from json'
+                else:
+                    if check_file_path(clean_path):
+                        os.rename(clean_path, dirname)
+                        shutil.move(dirname, destination_path)
+                    else:
+                        logging.error('File {name} with id {id} does not exist'.format(name=new_name, id=file_id))
+                    self.log_writer.delete_elem_by_id(file_id)
+                    self.log_writer.write_to_json(dry_run)
+                    self.log_writer.write_to_txt(dry_run)
+                    if verbose:
+                        print 'item restored'
+        finally:
+            self.lock.release()
             # end lock
 
     def define_time_policy(self, dry_run, verbose):
