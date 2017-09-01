@@ -10,9 +10,10 @@
 <table >
         <tbody>
             <tr>
-                <td ><div class="words"><a href={% url 'main' %}>Home</a></div></td>
-                <td ><div class="words"><a href={% url 'add_trash' %}>Add trash</a></div></td>
-                <td ><div class="words"><a href={% url 'task_list'%}>task list</a></div></td>
+                <td ><div class="words"><a href={% url 'main' %}>Home(trash list)</a></div></td>
+            <td ><div class="words"><a href={% url 'add_trash' %}>Add new trash</a></div></td>
+            <td ><div class="words"><a href={% url 'task_list'%}>Task list</a></div></td>
+            <td ><div class="words"><a href={% url 'add_task'%}>Add new task</a></div></td>
             </tr>
         </tbody>
     </table>
@@ -22,7 +23,7 @@
         <tr>
             <td>
                 {% csrf_token %}
-                {{ form }}
+                {{ form.as_p }}
                 <p>Are you sure you want to delete "{{ object }}"?</p>
                 <input type="submit" value="Delete task">
             </td>

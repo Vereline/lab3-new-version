@@ -35,7 +35,11 @@ class TaskToDo(models.Model):
         ('delete by regex', 'delete by regex'),
         ('delete by filename', 'delete by filename'),
         ('recover all trash', 'recover all trash'),
-        ('clear all trash', 'clear all trash')
+        ('clear all trash', 'clear all trash'),
+        ('remove files from trash', 'remove files from trash'),
+        ('recover files from trash', 'recover files from trash'),
+        ('remove files from trash by regex', 'remove files from trash by regex'),
+        ('recover files from trash by regex', 'recover files from trash by regex')
     )
 
     file_task = models.CharField(max_length=256, choices=tasks, default=None)

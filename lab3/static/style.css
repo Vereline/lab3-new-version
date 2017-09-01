@@ -7,14 +7,18 @@
     font-size: large;
     /*line-height: 120px;*/
     /*font-family: 'cursive';*/
+
 }
 
  .page-header {
-        background-color: #567789;
+        background-color: #fff67f;
         margin-top: 0;
         padding: 20px 20px 20px 40px;
         font-family: 'cursive';
-
+        font-weight: 100;
+        font-size: large;
+        /*line-height: 120px;*/
+        /*font-family: 'cursive';*/
     }
 
 
