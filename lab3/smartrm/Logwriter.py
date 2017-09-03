@@ -18,7 +18,7 @@ class Logwriter(object):
         self.load_from_json()
 
     def create_file_dict(self, path):
-        logging.info('Write data to json')
+        logging.info('Write data to json(create dict)')
 
         self.file_dict = self.write_file_dict(path)
         file_id = self.file_dict['id']

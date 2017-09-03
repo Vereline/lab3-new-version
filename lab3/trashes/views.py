@@ -109,6 +109,8 @@ def define_action(request, name):
 
     # trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
     trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
+    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
+    print {"name": name, "trash_list": trash_list}
     return render(request, "define_action.html", {"name": name, "trash_list": trash_list})
 
 
@@ -134,9 +136,17 @@ def recover_file(request, name):
     return define_action(request, name)
 
 
+# do here queue of tasks(or what??!???!?!)
+# do te status of tasks
+
+# task_status=['done', 'created', 'expecting']
+
 def do_the_task(request, pk): #################? do define action for tasks
+
     print 'do the task'
+    print pk
     trash_task_object = get_object_or_404(TaskToDo, pk=pk)
+    print trash_task_object
     print 'do the task'
     trash = trash_task_object.trash
     trash_folder = trash.path
@@ -158,6 +168,8 @@ def do_the_task(request, pk): #################? do define action for tasks
     # trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
     trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
     print 'do the task'
+    print {"name": pk, "trash_list": trash_list}
+    # return TaskList.as_view()
     return render(request, "task_list.html", {"name": pk, "trash_list": trash_list})
 
 

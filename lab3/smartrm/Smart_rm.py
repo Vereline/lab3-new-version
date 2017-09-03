@@ -1,16 +1,13 @@
 #! usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import shutil  #  Contains functions for operating files
-import os  # imports the os
-import json
-import Logwriter
-import ExeptionListener
-import re
-import Logger
 import logging
+import multiprocessing
+import os  # imports the os
+import shutil  #  Contains functions for operating files
+
+import ExeptionListener
 import Regular
-import threading
 
 
 class SmartRm(object):
@@ -18,34 +15,41 @@ class SmartRm(object):
         self.trash_path = path
         self.exception_listener = ExeptionListener.ExceptionListener
         self.ask_for_confirmation = q
-        self.lock = threading.Lock()
+        self.lock = multiprocessing.Lock()
 
-    def operate_with_removal(self, item, exit_codes, trash, dry_run, verbose):
-        exists = check_file_path(item)
-        if not exists:
-            logging.error('File {file} does not exist'.format(file=item))
-        else:
-            access = check_access(exit_codes, item)
-            if access == exit_codes['error']:
-                logging.error('Item {file} is a system unit'.format(file=item))
+    def operate_with_removal(self, items, exit_codes, trash, dry_run, verbose, interactive):
+
+        removal_processes = []
+        for item in items:
+            if interactive:
+                answer = self.ask_for_confirmation(item)
+                if not answer:
+                    continue
+            exists = check_file_path(item)
+            if not exists:
+                logging.error('File {file} does not exist'.format(file=item))
             else:
-                # remove all the check to the trash or to the smart rm
-                # start lock
-                self.lock.acquire()
-                try:
+                access = check_access(exit_codes, item)
+                if access == exit_codes['error']:
+                    logging.error('Item {file} is a system unit'.format(file=item))
+                else:
                     file_id = trash.log_writer.create_file_dict(item)
                     item = rename_file_name_to_id(item, file_id, dry_run)
-                    self.remove_to_trash_file(item, dry_run, verbose)
-
                     trash.log_writer.write_to_json(dry_run)
                     trash.log_writer.write_to_txt(dry_run)
-                finally:
-                    self.lock.release()
-                # end lock
 
-    def operate_with_regex_removal(self, item, interactive, trash, exit_codes, dry_run, verbose):
-        # items = Regular.define_regular_path(element)
-        # for item in items:
+                    rem_process = multiprocessing.Process(target=self.remove_to_trash_file, args=(item, dry_run, verbose,))
+                    removal_processes.append(rem_process)
+
+        for rem_process in removal_processes:
+            rem_process.start()
+        for rem_process in removal_processes:
+            rem_process.join()
+
+    def operate_with_regex_removal(self, element, interactive, trash, exit_codes, dry_run, verbose):
+        items = Regular.define_regular_path(element)
+        remove_processes = []
+        for item in items:
             if interactive:
                 answer = self.ask_for_confirmation(item)
                 if not answer:
@@ -60,17 +64,18 @@ class SmartRm(object):
                     logging.error('Item {file} is a system unit'.format(file=item))
                     # exception
                 else:
-                    # start lock
-                    self.lock.acquire()
-                    try:
-                        file_id = trash.log_writer.create_file_dict(item)
-                        item = rename_file_name_to_id(item, file_id, dry_run)
-                        self.remove_to_trash_file(item, dry_run, verbose)
-                        trash.log_writer.write_to_json(dry_run)
-                        trash.log_writer.write_to_txt(dry_run)
-                    finally:
-                        self.lock.release()
-                    # end lock
+                    file_id = trash.log_writer.create_file_dict(item)
+                    item = rename_file_name_to_id(item, file_id, dry_run)
+                    trash.log_writer.write_to_json(dry_run)
+                    trash.log_writer.write_to_txt(dry_run)
+                    rem_process = multiprocessing.Process(target=self.remove_to_trash_file,
+                                                          args=(item, dry_run, verbose,))
+                    remove_processes.append(rem_process)
+
+        for rem_process in remove_processes:
+            rem_process.start()
+        for rem_process in remove_processes:
+            rem_process.join()
 
     def remove_to_trash_file(self, path, dry_run, verbose):  # works
         logging.info('Remove {path}'.format(path=path))

@@ -26,9 +26,10 @@
             <td style="width: 100px; text-align: center"><div>{{ obj.path }}</div></td>
             <td style="width: 100px; text-align: center">
 {#                <div>#}
-{#                    <a href={% url 'do_the_task' name=obj.name %}>Do the task</a>#}
+{#                    <a href={% url 'do_the_task' pk=obj.pk %}>Do the task</a>#}
 {#                </div>#}
             <form action="{% url 'do_the_task' pk=obj.pk %}" method="post">{% csrf_token %}
+{#pk - is a personal number of task#}
             <input type="submit" value="Do it">
 
              </form>
@@ -58,7 +59,7 @@
 {#    <table>#}
 {#    <tbody>#}
 {#        <tr>#}
-{#            <td ><div><a href={% url 'define_action' name=obj.name %}>{{ obj.name }}</a></div></td>#}
+{#            <td ><div><a href={% url 'define_action' pk=obj.pk %}>{{ obj.pk }}</a></div></td>#}
 {#            <td ><div>{{ obj.path }}</div></td>#}
 {#            <td ><div><a href={% url 'refresh_task' pk=obj.pk %}>Refresh task</a></div></td>#}
 {#            <td ><div><a href={% url 'delete_task' pk=obj.pk %}>Delete task</a></div></td>#}
