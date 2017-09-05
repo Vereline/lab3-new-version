@@ -10,6 +10,8 @@ class Trash(models.Model):
     name = models.CharField(max_length=256)
     path = models.CharField(max_length=256)
     info_path = models.CharField(max_length=256, default=' ')
+    info_txt_path = models.CharField(max_length=256, default=' ')
+    info_logging_path = models.CharField(max_length=256, default=' ')
     maximum_size = models.IntegerField(default=1000)
     maximum_time = models.IntegerField(default=7)
     policy_time = models.BooleanField(default=False)
@@ -47,7 +49,28 @@ class TaskToDo(models.Model):
     info_path = models.CharField(max_length=256, default=' ')
     maximum_size = models.IntegerField(default=1000)
     maximum_time = models.IntegerField(default=7)
-    task_is_done = models.BooleanField(default=False)
+    # task_is_done = models.BooleanField(default=False)
+    # task_process_choices = (
+    #     (0, 'Not done'),
+    #     (1, 'In process'),
+    #     (2, 'Waiting'),
+    #     (3, 'Done'),  # ???????? how to manage status???????
+    # )
+    NOTDONE = 'Not done'
+    INPROCESS = 'In process'
+    WAITING = 'Waiting'
+    DONE = 'Done'
+    task_process_choices = (
+        (NOTDONE, 'Not done'),
+        (INPROCESS, 'In process'),
+        (WAITING, 'Waiting'),
+        (DONE, 'Done'),  # ???????? how to manage status???????
+    )
+    task_process = models.CharField(
+        max_length=256,
+        choices=task_process_choices,
+        default=NOTDONE,
+    )
 
     class Meta:
         db_table = 'task'

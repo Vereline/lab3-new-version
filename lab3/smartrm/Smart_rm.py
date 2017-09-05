@@ -11,7 +11,7 @@ import Regular
 
 
 class SmartRm(object):
-    def __init__(self, path, q):
+    def __init__(self, path, q=None):
         self.trash_path = path
         self.exception_listener = ExeptionListener.ExceptionListener
         self.ask_for_confirmation = q
@@ -41,6 +41,8 @@ class SmartRm(object):
                     rem_process = multiprocessing.Process(target=self.remove_to_trash_file, args=(item, dry_run, verbose,))
                     removal_processes.append(rem_process)
 
+        # ф-я, которая рассчитывала количество потоков
+        # ?????????
         for rem_process in removal_processes:
             rem_process.start()
         for rem_process in removal_processes:

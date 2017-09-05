@@ -4,9 +4,10 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Trash, TaskToDo
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
 import os
 import smartrm.Trash as smartrm_trash
+import smartrm.Smart_rm as smart_rm
 # from smartrm.Trash import Trash
 from .forms import TrashForm, TaskForm
 from django.urls import reverse_lazy
@@ -41,6 +42,12 @@ class Main(ListView):
 class TaskList(ListView):
     template_name = 'task_list.html'
     model = TaskToDo
+    #
+    # def get_context_data(self, **kwargs):
+    #     context = super(TaskList,self).get_context_data()
+    #
+    # def render_to_response(self, context, **response_kwargs):
+    #     pass
 
 
 class AddTrash(CreateView):
@@ -54,7 +61,8 @@ class RefreshTrash(UpdateView):
     success_url = reverse_lazy('main')
     template_name = "refresh_trash.html"
     model = Trash
-    fields = ('name', 'path', 'info_path', 'maximum_size', 'maximum_time', 'policy_size',
+    fields = ('name', 'path', 'info_path', 'info_txt_path',
+              'info_logging_path', 'maximum_size', 'maximum_time', 'policy_size',
               'policy_time',)
 
 
@@ -80,7 +88,7 @@ class RefreshTask(UpdateView):
     template_name = "refresh_task.html"
     model = TaskToDo
     fields = ('name', 'file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
-              'task_is_done', 'maximum_time', 'maximum_size', 'trash', 'regular', )
+              'maximum_time', 'maximum_size', 'trash', 'regular', )
 
 
 class DeleteTask(DeleteView):
@@ -89,7 +97,7 @@ class DeleteTask(DeleteView):
     model = TaskToDo
     form_class = TaskForm
     fields = ('name', 'file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
-              'task_is_done', 'maximum_time', 'maximum_size', 'trash', 'regular', )
+              'maximum_time', 'maximum_size', 'trash', 'regular', )
 
 
 def define_action(request, name):
@@ -116,11 +124,36 @@ def define_action(request, name):
 
 def remove_file(request, name):
     trash_object = get_object_or_404(Trash, name=name)
-    trash_path = os.path.join(trash_object.path, "trash")
+    # trash_path = os.path.join(trash_object.path, "trash")
+    trash_folder = trash_object.path
+    trash_folder_info = trash_object.info_path
+    trash_log_path_txt = trash_object.info_txt_path
+    trash_logging = trash_object.info_logging_path
+    t_policy_s = trash_object.policy_size
+    t_policy_t = trash_object.policy_time
+    t_max_s = trash_object.maximum_size
+    t_max_t = trash_object.maximum_time
+    trash = smartrm_trash.Trash(trash_folder, trash_folder_info,
+                                trash_log_path_txt,
+                                t_policy_t, t_policy_s,
+                                t_max_s,
+                                DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
+                                t_max_t,
+                                q=None)
+
+    print trash
     path = request.POST.getlist('file')
+    print 'START PATH'
     print path
+    print 'END PATH'
     info_path = os.path.join(trash_object.path, "info")
     print 'REMOVE'
+    my_names = []
+    for item in path:
+        for element in item:
+            pass
+        # my_names.append(item['name'])
+    # trash.delete_manually(my_names, False, False, False)  # do dry_run=false
     #smartrm.remove(path, trash_path, info_path, dry=False)
     return define_action(request, name)
 
@@ -149,6 +182,13 @@ def do_the_task(request, pk): #################? do define action for tasks
     print trash_task_object
     print 'do the task'
     trash = trash_task_object.trash
+
+    # works
+    #
+    # trash_task_object.task_process = trash_task_object.DONE
+    # trash_task_object.save()
+    #
+
     trash_folder = trash.path
     print 'do the task'
     trash_folder_info = trash.info_path
@@ -170,7 +210,8 @@ def do_the_task(request, pk): #################? do define action for tasks
     print 'do the task'
     print {"name": pk, "trash_list": trash_list}
     # return TaskList.as_view()
-    return render(request, "task_list.html", {"name": pk, "trash_list": trash_list})
+    return redirect('/task_list')
+    # return render(request, "task_list.html")
 
 
     # trash_object = get_object_or_404(Trash, name=name)
