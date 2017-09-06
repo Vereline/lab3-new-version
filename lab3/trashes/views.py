@@ -11,6 +11,8 @@ import smartrm.Smart_rm as smart_rm
 # from smartrm.Trash import Trash
 from .forms import TrashForm, TaskForm
 from django.urls import reverse_lazy
+import json
+import ast
 
 # Create your views here.
 
@@ -18,8 +20,6 @@ from django.urls import reverse_lazy
 # def trash_main(request):
 #     return render(request, 'main.html', {})
 
-
-# get rid of this
 DEFAULT_CONFIG = {
     "path": "/home/vereline/Trash",
     "trash_log_path": "/home/vereline/Trash/Trash_log/Trash_log.json",
@@ -75,7 +75,7 @@ class DeleteTrash(DeleteView):
 
 
 class AddTask(CreateView):
-    success_url = reverse_lazy('main')
+    success_url = reverse_lazy('task_list')
     template_name = 'add_task.html'
     model = TaskToDo
     form_class = TaskForm
@@ -84,7 +84,7 @@ class AddTask(CreateView):
 
 
 class RefreshTask(UpdateView):
-    success_url = reverse_lazy('main')
+    success_url = reverse_lazy('task_list')
     template_name = "refresh_task.html"
     model = TaskToDo
     fields = ('name', 'file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
@@ -92,7 +92,7 @@ class RefreshTask(UpdateView):
 
 
 class DeleteTask(DeleteView):
-    success_url = reverse_lazy('main')
+    success_url = reverse_lazy('task_list')
     template_name = "delete_task.html"
     model = TaskToDo
     form_class = TaskForm
@@ -105,19 +105,25 @@ def define_action(request, name):
     trash_folder = trash_object.path
     trash_folder_info = trash_object.info_path
     # add_trash(trash_fold)
-
+    trash_log_path_txt = trash_object.info_txt_path
+    trash_logging = trash_object.info_logging_path
+    t_policy_s = trash_object.policy_size
+    t_policy_t = trash_object.policy_time
+    t_max_s = trash_object.maximum_size
+    t_max_t = trash_object.maximum_time
     trash = smartrm_trash.Trash(trash_folder, trash_folder_info,
-            DEFAULT_CONFIG['trash_log_path_txt'],
-            DEFAULT_CONFIG['policy_time'], DEFAULT_CONFIG['policy_size'], DEFAULT_CONFIG['max_size'],
-            DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'], DEFAULT_CONFIG['max_time'],
-            q=None)
-
+                                trash_log_path_txt,
+                                t_policy_t, t_policy_s,
+                                t_max_s,
+                                DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
+                                t_max_t,
+                                q=None)
     # trash_path = os.path.join(trash_object.path, "trash")
     # info_path = os.path.join(trash_object.path, "info")
 
     # trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
     trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
+    # print "!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
     print {"name": name, "trash_list": trash_list}
     return render(request, "define_action.html", {"name": name, "trash_list": trash_list})
 
@@ -141,31 +147,59 @@ def remove_file(request, name):
                                 t_max_t,
                                 q=None)
 
-    print trash
+    # print trash
     path = request.POST.getlist('file')
-    print 'START PATH'
-    print path
-    print 'END PATH'
-    info_path = os.path.join(trash_object.path, "info")
+    # print 'START PATH'
+    # print path
+    # print 'END PATH'
+    # info_path = os.path.join(trash_object.path, "info")
     print 'REMOVE'
     my_names = []
     for item in path:
-        for element in item:
-            pass
-        # my_names.append(item['name'])
-    # trash.delete_manually(my_names, False, False, False)  # do dry_run=false
-    #smartrm.remove(path, trash_path, info_path, dry=False)
+        s = ast.literal_eval(item)  # str to dict
+        my_names.append(s['name'])
+        # s = item.encode('utf-8')
+        # info_dict = json.loads(item)  # problems with double quotes
+        # print info_dict
+        # my_names.append(info_dict['name'])
+
+    trash.delete_manually(my_names, False, False, False)  # do dry_run=false
+
     return define_action(request, name)
 
 
 def recover_file(request, name):
     trash_object = get_object_or_404(Trash, name=name)
-    trash_path = os.path.join(trash_object.path, "trash")
+    # trash_path = os.path.join(trash_object.path, "trash")
+    trash_folder = trash_object.path
+    trash_folder_info = trash_object.info_path
+    trash_log_path_txt = trash_object.info_txt_path
+    trash_logging = trash_object.info_logging_path
+    t_policy_s = trash_object.policy_size
+    t_policy_t = trash_object.policy_time
+    t_max_s = trash_object.maximum_size
+    t_max_t = trash_object.maximum_time
+    trash = smartrm_trash.Trash(trash_folder, trash_folder_info,
+                                trash_log_path_txt,
+                                t_policy_t, t_policy_s,
+                                t_max_s,
+                                DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
+                                t_max_t,
+                                q=None)
+
+    print trash
     path = request.POST.getlist('file')
-    print path
-    info_path = os.path.join(trash_object.path, "info")
-    print 'RESTORE OR RECOVER'
-    #smartrm.recover(path, trash_path, info_path, dry=False)
+
+    my_names = []
+    for item in path:
+        s = ast.literal_eval(item)  # str to dict
+        my_names.append(s['name'])
+        # s = item.encode('utf-8')
+        # info_dict = json.loads(item)  # problems with double quotes
+        # print info_dict
+        # my_names.append(info_dict['name'])
+
+    trash.restore_trash_manually(my_names, False, False, False)
     return define_action(request, name)
 
 

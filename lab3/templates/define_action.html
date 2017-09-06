@@ -22,9 +22,8 @@
     <tbody>
     <tr>
     <td >
-    <!-- an hour video for django (blog in russian) tells about base.html-->
         {%  if trash_list %}
-            <form action="{% url 'remove' name %}" method="post">{% csrf_token %}
+            <form  method="post">{% csrf_token %}
             <ul>
                 {% for obj in trash_list %}
                     <label class="">
@@ -34,52 +33,21 @@
                     <p></p>
                 {% endfor %}
             <p></p>
-            <input type="submit" value="Remove">
+            <input type="submit" value="Remove" formaction="{% url 'remove' name %}">
+            <input type="submit" value="Recover" formaction="{% url 'recover' name %}">
             </ul>
              </form>
-
-
-            <form action="{% url 'recover' name %}" method="post">{% csrf_token %}
-            <ul>
-            <input type="submit" value="Recover">
-            </ul>
-             </form>
+{#            <form action="{% url 'recover' name %}" method="post">{% csrf_token %}#}
+{#            <ul>#}
+{#            <input type="submit" value="Recover">#}
+{#            </ul>#}
+{#             </form>#}
 
         {% else %}
             <p>Your trash is empty</p>
         {% endif %}
 
     </td>
-    </tr>
-    <tr>
-        <td >
-{#    <form action="{% url 'delete' name %}" method="post">#}
-{#        {% csrf_token %}#}
-{#        <input type="text" name="delete">#}
-{#        <br>#}
-{#        <input type="submit" value="delete to trash">#}
-{#    </form>#}
-        </td>
-    </tr>
-    <tr>
-        <td >
-{#    <form action="{% url 'rex' name %}" method="post">#}
-{#        {% csrf_token %}#}
-{#        <input type="text" name="reg">expression#}
-{#        <br>#}
-{#        <input type="text" name="path">subtree#}
-{#        <br>#}
-{#        <input type="submit" value="delete by regular expression">#}
-{#    </form>#}
-        </td>
-    </tr>
-    <tr>
-        <td>
-{#        <form action="{% url 'clear' name %}" method="post">#}
-{#            {% csrf_token %}#}
-{#            <input type="submit" value="clear trash">#}
-{#        </form>#}
-        </td>
     </tr>
     </tbody>
     </table>

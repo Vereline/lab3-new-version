@@ -217,7 +217,6 @@ class Trash(object):
         # restore one file in the trash
         # check if the path already exists
         restore_processes = []
-
         for path in paths:
             if interactive_mode:
                 answer = self.ask_for_confirmation(path)
