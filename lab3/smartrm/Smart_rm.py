@@ -33,6 +33,7 @@ class SmartRm(object):
                 if access == exit_codes['error']:
                     logging.error('Item {file} is a system unit'.format(file=item))
                 else:
+                    print item
                     file_id = trash.log_writer.create_file_dict(item)
                     item = rename_file_name_to_id(item, file_id, dry_run)
                     trash.log_writer.write_to_json(dry_run)
@@ -109,6 +110,7 @@ def check_file_path(path):
 
 
 def rename_file_name_to_id(path, file_id, dry_run):  # works
+    print path
     logging.info('Rename item with id')
     # _id = self.trash.log_writer.get_id_path(path)
     _id = file_id
@@ -119,6 +121,7 @@ def rename_file_name_to_id(path, file_id, dry_run):  # works
             break
 
     directory_name = path[:(index+1)] + _id
+
     if dry_run:
         print 'rename file name to id'
     else:

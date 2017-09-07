@@ -29,7 +29,8 @@ def define_task(task, trash):
     current_task = task.file_task
     regex = task.regular
     smart_rm = Smart_rm.SmartRm(trash.path)
-    element = task.file_path
+    element = []
+    element.append(task.file_path)
     if current_task == AVAILABLE_TASKS['dbr']:
         smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES)
 

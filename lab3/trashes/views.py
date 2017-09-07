@@ -7,7 +7,7 @@ from .models import Trash, TaskToDo
 from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
 import os
 import smartrm.Trash as smartrm_trash
-import smartrm.Smart_rm as smart_rm
+#import smartrm.Smart_rm as smart_rm
 # from smartrm.Trash import Trash
 from .forms import TrashForm, TaskForm
 from django.urls import reverse_lazy
