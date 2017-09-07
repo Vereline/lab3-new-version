@@ -17,7 +17,7 @@ class SmartRm(object):
         self.ask_for_confirmation = q
         self.lock = multiprocessing.Lock()
 
-    def operate_with_removal(self, items, exit_codes, trash, dry_run, verbose, interactive):
+    def operate_with_removal(self, items, exit_codes, trash, dry_run=False, verbose=False, interactive=False):
 
         removal_processes = []
         for item in items:
@@ -48,7 +48,7 @@ class SmartRm(object):
         for rem_process in removal_processes:
             rem_process.join()
 
-    def operate_with_regex_removal(self, element, interactive, trash, exit_codes, dry_run, verbose):
+    def operate_with_regex_removal(self, element, trash, exit_codes, dry_run=False, verbose=False, interactive=False):
         items = Regular.define_regular_path(element)
         remove_processes = []
         for item in items:

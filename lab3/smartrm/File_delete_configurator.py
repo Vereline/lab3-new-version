@@ -159,8 +159,8 @@ class FileDeleteConfigurator(object):
 
         elif self.argparser.args.remove_regular is not None:
             for element in self.paths:
-                self.smartrm.operate_with_regex_removal(element, self.interactive, self.trash,
-                                                        self.exit_codes, self.dry_run, self.verbose)
+                self.smartrm.operate_with_regex_removal(element, self.trash,
+                                                        self.exit_codes, self.dry_run, self.verbose, self.interactive)
 
         elif self.argparser.args.clean is not None:
             if self.interactive:

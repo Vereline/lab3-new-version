@@ -11,7 +11,7 @@
 }
 
  .page-header {
-        background-color: #fff67f;
+        background-color: lightblue;
         margin-top: 0;
         padding: 20px 20px 20px 40px;
         font-family: 'cursive';
@@ -39,3 +39,14 @@ td a {
         color: #822585;
         font-family: 'cursive';
     }
+
+ .button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 9px 13px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}

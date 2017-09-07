@@ -42,17 +42,17 @@ class Logwriter(object):
             dirname = path[index+1:]
             file_dict['name'] = dirname
             file_list = []
-            d = os.listdir(path)
-            # print d
-            for item in d:
-                subpath = os.path.join(path, item)
-                if os.path.isdir(subpath):
-                    subfile = self.write_file_dict(subpath)
-                    file_list.append(subfile)
-
-                elif not os.path.isdir(subpath):
-                    subdict = self.write_file_dict(subpath)
-                    file_list.append(subdict)
+            # d = os.listdir(path)
+            # # print d
+            # for item in d:
+            #     subpath = os.path.join(path, item)
+            #     if os.path.isdir(subpath):
+            #         subfile = self.write_file_dict(subpath)
+            #         file_list.append(subfile)
+            #
+            #     elif not os.path.isdir(subpath):
+            #         subdict = self.write_file_dict(subpath)
+            #         file_list.append(subdict)
 
             # tree = os.walk(path)
             # for d in tree:

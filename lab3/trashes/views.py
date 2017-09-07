@@ -13,6 +13,8 @@ from .forms import TrashForm, TaskForm
 from django.urls import reverse_lazy
 import json
 import ast
+import smartrm.threading_smartrm as threading_smrm
+import time
 
 # Create your views here.
 
@@ -121,9 +123,7 @@ def define_action(request, name):
     # trash_path = os.path.join(trash_object.path, "trash")
     # info_path = os.path.join(trash_object.path, "info")
 
-    # trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
-    trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
-    # print "!!!!!!!!!!!!!!!!!!!!!!!!!!!1"
+    trash_list = trash.watch_trash()
     print {"name": name, "trash_list": trash_list}
     return render(request, "define_action.html", {"name": name, "trash_list": trash_list})
 
@@ -149,9 +149,6 @@ def remove_file(request, name):
 
     # print trash
     path = request.POST.getlist('file')
-    # print 'START PATH'
-    # print path
-    # print 'END PATH'
     # info_path = os.path.join(trash_object.path, "info")
     print 'REMOVE'
     my_names = []
@@ -160,10 +157,8 @@ def remove_file(request, name):
         my_names.append(s['name'])
         # s = item.encode('utf-8')
         # info_dict = json.loads(item)  # problems with double quotes
-        # print info_dict
-        # my_names.append(info_dict['name'])
 
-    trash.delete_manually(my_names, False, False, False)  # do dry_run=false
+    trash.delete_manually(my_names)
 
     return define_action(request, name)
 
@@ -203,80 +198,47 @@ def recover_file(request, name):
     return define_action(request, name)
 
 
-# do here queue of tasks(or what??!???!?!)
-# do te status of tasks
-
-# task_status=['done', 'created', 'expecting']
-
-def do_the_task(request, pk): #################? do define action for tasks
+def do_the_task(request, pk):
 
     print 'do the task'
     print pk
     trash_task_object = get_object_or_404(TaskToDo, pk=pk)
     print trash_task_object
     print 'do the task'
-    trash = trash_task_object.trash
+    trash_object = trash_task_object.trash
 
     # works
     #
     # trash_task_object.task_process = trash_task_object.DONE
     # trash_task_object.save()
-    #
 
-    trash_folder = trash.path
-    print 'do the task'
-    trash_folder_info = trash.info_path
-    # add_trash(trash_fold)
-    print 'do the task'
+    trash_folder = trash_object.path
+    trash_folder_info = trash_object.info_path
+    trash_log_path_txt = trash_object.info_txt_path
+    trash_logging = trash_object.info_logging_path
+    t_policy_s = trash_object.policy_size
+    t_policy_t = trash_object.policy_time
+    t_max_s = trash_object.maximum_size
+    t_max_t = trash_object.maximum_time
+
     trash = smartrm_trash.Trash(trash_folder, trash_folder_info,
-                                DEFAULT_CONFIG['trash_log_path_txt'],
-                                DEFAULT_CONFIG['policy_time'], DEFAULT_CONFIG['policy_size'],
-                                DEFAULT_CONFIG['max_size'],
+                                trash_log_path_txt,
+                                t_policy_t, t_policy_s,
+                                t_max_s,
                                 DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
-                                DEFAULT_CONFIG['max_time'],
+                                t_max_t,
                                 q=None)
+    trash_task_object.task_process = trash_task_object.INPROCESS
+    trash_task_object.save()
+    threading_smrm.define_task(trash_task_object, trash)
+    time.sleep(3)
+    trash_task_object.task_process = trash_task_object.DONE
+    trash_task_object.save()
 
-    # trash_path = os.path.join(trash_object.path, "trash")
-    # info_path = os.path.join(trash_object.path, "info")
-
-    # trash_policy(trash_path, info_path, trash_object.policy, trash_object.savetime, trash_object.maxsize)
-    trash_list = trash.watch_trash(dry_run=False)  # smartrm.show_trash_(trash_path, 0, dry=False)
+    trash_list = trash.watch_trash(dry_run=False)
     print 'do the task'
     print {"name": pk, "trash_list": trash_list}
     # return TaskList.as_view()
     return redirect('/task_list')
-    # return render(request, "task_list.html")
 
 
-    # trash_object = get_object_or_404(Trash, name=name)
-    # trash_path = os.path.join(trash_object.path, "trash")
-    # path = request.POST.getlist('file')
-    # print path
-    # info_path = os.path.join(trash_object.path, "info")
-    # print 'do this task'
-    # #smartrm.recover(path, trash_path, info_path, dry=False)
-    # return do_the_task(request, name)
-
-#
-#
-# def clean_trash(request, name):
-#     trash_object = get_object_or_404(Trash, name=name)
-#     trash_path = os.path.join(trash_object.path, "trash")
-#     info_path = os.path.join(trash_object.path, "info")
-#     #tack = Tack(tack='clean', target=trash_object.name)
-#     #tack.save()
-#     #smartrm.empty_trash(trash_path, info_path, dry=False)
-#     return define_action(request, name)
-#
-#
-# def regular_expression(request, name):
-#     trash_object = get_object_or_404(Trash, name=name)
-#     trash_path = os.path.join(trash_object.path, "trash")
-#     info_path = os.path.join(trash_object.path, "info")
-#     subtree = request.POST['path']
-#     reg = request.POST['reg']
-#     #tack = Tack(tack='regular exptession', target=reg)
-#     #tack.save()
-#     #smartrm.regular_expression_rm(subtree, reg, trash_path, info_path)
-#     print subtree, reg, trash_path, info_path
-#     return define_action(request, name)

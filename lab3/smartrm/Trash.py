@@ -56,7 +56,7 @@ class Trash(object):
         except Exception as ex:
             logging.error(ex.message)
 
-    def delete_automatically(self, dry_run, verbose):  # works
+    def delete_automatically(self, dry_run=False, verbose=False):  # works
         # delete the whole trash
         logging.info("Clean the whole trash".format())
         remove_processes = []
@@ -88,7 +88,7 @@ class Trash(object):
             clean_txt = open(self.log_writer.file_dict_path_txt, 'w')
             clean_txt.close()
 
-    def delete_manually(self, paths, dry_run, verbose, interactive):  # not checked
+    def delete_manually(self, paths, dry_run=False, verbose=False, interactive=False):  # not checked
         # delete one file manually
         remove_processes = []
         for path in paths:
@@ -162,7 +162,7 @@ class Trash(object):
             if file_id in subpath:
                 return subpath
 
-    def watch_trash(self, dry_run):  # works
+    def watch_trash(self, dry_run=False):  # works
         logging.info("Show trash".format())
         if dry_run:
             print 'show trash'
@@ -175,7 +175,7 @@ class Trash(object):
                 print(txt_file.read())
                 return self.log_writer.file_dict_arr
 
-    def restore_trash_automatically(self, dry_run, verbose):  # not tested
+    def restore_trash_automatically(self, dry_run=False, verbose=False):  # not tested
         # restore the the whole trash
         logging.info("Restore the whole trash".format())
         paths = []
@@ -213,7 +213,7 @@ class Trash(object):
             # clean_txt = open(self.log_writer.file_dict_path_txt, 'w')
             # clean_txt.close()
 
-    def restore_trash_manually(self, paths, dry_run, verbose, interactive_mode):  # works
+    def restore_trash_manually(self, paths, dry_run=False, verbose=False, interactive_mode=False):  # works
         # restore one file in the trash
         # check if the path already exists
         restore_processes = []
@@ -334,12 +334,12 @@ class Trash(object):
         else:
             return False
 
-    def check_size(self, dry_run, verbose):
+    def check_size(self, dry_run=False, verbose=False):
         # logging.info("Check the size policy".format())
         if int(self.max_size) - self.count_size(dry_run) <= 0:
             if dry_run:
                 print 'not enough trash space'
-            else:
+            elif not dry_run:
                 self.delete_automatically(dry_run, verbose)
 
     def count_size(self, dry_run):  # not tested
@@ -408,7 +408,7 @@ class Trash(object):
 
         return suitable_names, suitable_id
 
-    def restore_by_regular(self, regex, dry_run, interactive, verbose):  # not tested
+    def restore_by_regular(self, regex, dry_run=False, interactive=False, verbos=False):  # not tested
         restore_processes = []
         names, ids = self.get_names_by_regular(regex)
         for file_id in ids:
@@ -490,7 +490,7 @@ class Trash(object):
         for proc in restore_processes:
             proc.join()
 
-    def clean_by_regular(self, regex, dry_run, verbose, interactive):  # not tested
+    def clean_by_regular(self, regex, dry_run=False, verbose=False, interactive=False):  # not tested
         names, ids = self.get_names_by_regular(regex)
         # do here not cycle but parallel
         clean_processes = []
