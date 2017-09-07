@@ -1,0 +1,40 @@
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Add trash</title>#}
+{#</head>#}
+{#<body>#}
+{% extends 'base.html' %}
+{% block content %}
+<table >
+        <tbody>
+            <tr>
+                <td ><div class="page-header"><a href={% url 'main' %}>Home(trash list)</a></div></td>
+                <td ><div class="page-header"><a href={% url 'add_trash' %}>Add new trash</a></div></td>
+                <td ><div class="page-header"><a href={% url 'task_list'%}>Task list</a></div></td>
+                <td ><div class="page-header"><a href={% url 'add_task'%}>Add new task</a></div></td>
+{#                <td ><div class="pageheader"><a href={% url 'main' %}>Home</a></div></td>#}
+{#                <td ><div><a href={% url 'task_list'%}>tack list</a></div></td>#}
+            </tr>
+        </tbody>
+    </table>
+<form method="Post" action="">
+{#    <table >#}
+{#        <tbody>#}
+{#        <tr>#}
+{#            <td >#}
+                {% csrf_token %}
+                {{ form.as_p }}
+{#            </td>#}
+{#            <td >#}
+                <input class="button" type="submit" value="Add trash">
+{#            </td>#}
+{#        </tr>#}
+{#        </tbody>#}
+{#    </table>#}
+</form>
+{% endblock %}
+
+{#</body>#}
+{#</html>#}
