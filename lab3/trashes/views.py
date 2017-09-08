@@ -15,6 +15,7 @@ import json
 import ast
 import smartrm.threading_smartrm as threading_smrm
 import time
+import multiprocessing
 
 # Create your views here.
 
@@ -206,6 +207,7 @@ def do_the_task(request, pk):
     print trash_task_object
     print 'do the task'
     trash_object = trash_task_object.trash
+    all_tasks = TaskToDo.objects.all()
 
     # works
     #
@@ -221,6 +223,9 @@ def do_the_task(request, pk):
     t_max_s = trash_object.maximum_size
     t_max_t = trash_object.maximum_time
 
+
+    # works
+
     trash = smartrm_trash.Trash(trash_folder, trash_folder_info,
                                 trash_log_path_txt,
                                 t_policy_t, t_policy_s,
@@ -228,12 +233,15 @@ def do_the_task(request, pk):
                                 DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
                                 t_max_t,
                                 q=None)
-    trash_task_object.task_process = trash_task_object.INPROCESS
-    trash_task_object.save()
-    threading_smrm.define_task(trash_task_object, trash)
-    time.sleep(3)
-    trash_task_object.task_process = trash_task_object.DONE
-    trash_task_object.save()
+    # lock = multiprocessing.Lock()
+    # with lock:
+    #     trash_task_object.task_process = trash_task_object.INPROCESS
+    #     trash_task_object.save()
+    #
+    # myproc = multiprocessing.Process(target=threading_smrm.define_task, args=(trash_task_object, trash, lock))
+    # # threading_smrm.define_task(trash_task_object, trash)
+    # # time.sleep(3)
+    # myproc.start()
 
     trash_list = trash.watch_trash(dry_run=False)
     print 'do the task'

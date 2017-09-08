@@ -16,6 +16,7 @@ class Trash(models.Model):
     maximum_time = models.IntegerField(default=7)
     policy_time = models.BooleanField(default=False)
     policy_size = models.BooleanField(default=False)
+    is_busy = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'trashes'
@@ -49,13 +50,7 @@ class TaskToDo(models.Model):
     info_path = models.CharField(max_length=256, default=' ')
     maximum_size = models.IntegerField(default=1000)
     maximum_time = models.IntegerField(default=7)
-    # task_is_done = models.BooleanField(default=False)
-    # task_process_choices = (
-    #     (0, 'Not done'),
-    #     (1, 'In process'),
-    #     (2, 'Waiting'),
-    #     (3, 'Done'),  # ???????? how to manage status???????
-    # )
+
     NOTDONE = 'Not done'
     INPROCESS = 'In process'
     WAITING = 'Waiting'
@@ -64,7 +59,7 @@ class TaskToDo(models.Model):
         (NOTDONE, 'Not done'),
         (INPROCESS, 'In process'),
         (WAITING, 'Waiting'),
-        (DONE, 'Done'),  # ???????? how to manage status???????
+        (DONE, 'Done'),
     )
     task_process = models.CharField(
         max_length=256,

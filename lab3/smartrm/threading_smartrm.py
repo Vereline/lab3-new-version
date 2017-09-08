@@ -5,6 +5,7 @@ import threading
 import Trash
 import Smart_rm
 import multiprocessing
+import time
 
 AVAILABLE_TASKS = {
     'dbr': 'delete by regex',
@@ -25,17 +26,21 @@ EXIT_CODES = {
         }
 
 
-def define_task(task, trash):
+def define_task(task, trash, lock):
+    # lock = multiprocessing.Lock()
+
+    elements = []
+
     current_task = task.file_task
     regex = task.regular
     smart_rm = Smart_rm.SmartRm(trash.path)
-    element = []
-    element.append(task.file_path)
+
+    elements.append(task.file_path)
     if current_task == AVAILABLE_TASKS['dbr']:
         smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES)
 
     elif current_task == AVAILABLE_TASKS['dbf']:
-        smart_rm.operate_with_removal(element, EXIT_CODES, trash)
+        smart_rm.operate_with_removal(elements, EXIT_CODES, trash)
 
     elif current_task == AVAILABLE_TASKS['rat']:
         trash.restore_trash_automatically()
@@ -44,13 +49,32 @@ def define_task(task, trash):
         trash.delete_automatically()
 
     elif current_task == AVAILABLE_TASKS['rmfft']:
-        trash.delete_manually(element)
+        trash.delete_manually(elements)
 
     elif current_task == AVAILABLE_TASKS['rcfft']:
-        trash.restore_trash_manually(element)
+        trash.restore_trash_manually(elements)
 
     elif current_task == AVAILABLE_TASKS['rmfftr']:
         trash.clean_by_regular(regex)
 
     elif current_task == AVAILABLE_TASKS['rcfftr']:
         trash.restore_by_regular(regex)
+    time.sleep(3)
+    with lock:
+        task.task_process = task.DONE
+        task.save()
+
+
+def manage_tasks(task, trash, another_trash_tasks, lock):
+    with lock:
+        # if trash.path = task.trash.name => task from all_tasks.waiting
+        # and freeze the button (do it) in html
+
+        for task in another_trash_tasks:
+            task.task_process = task.WAITING
+            task.save()
+
+    define_task(task, trash, lock)
+    # maybe bring it to the views.py
+    # and all tasks do previous state(save it somewhere)
+    # in the end do trash.not busy
