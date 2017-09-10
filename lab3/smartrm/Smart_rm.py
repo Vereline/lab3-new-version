@@ -18,7 +18,7 @@ class SmartRm(object):
         self.lock = multiprocessing.Lock()
 
     def operate_with_removal(self, items, exit_codes, trash, dry_run=False, verbose=False, interactive=False):
-
+        return_code = exit_codes['success']
         removal_processes = []
         for item in items:
             if interactive:
@@ -28,10 +28,12 @@ class SmartRm(object):
             exists = check_file_path(item)
             if not exists:
                 logging.error('File {file} does not exist'.format(file=item))
+                return_code = exit_codes['no_file']
             else:
                 access = check_access(exit_codes, item)
                 if access == exit_codes['error']:
                     logging.error('Item {file} is a system unit'.format(file=item))
+                    return_code = exit_codes['error']
                 else:
                     print item
                     file_id = trash.log_writer.create_file_dict(item)
@@ -43,29 +45,33 @@ class SmartRm(object):
                     removal_processes.append(rem_process)
 
         # ф-я, которая рассчитывала количество потоков
-        # ?????????
+
         for rem_process in removal_processes:
             rem_process.start()
         for rem_process in removal_processes:
             rem_process.join()
 
+        return return_code
+
     def operate_with_regex_removal(self, element, trash, exit_codes, dry_run=False, verbose=False, interactive=False):
         items = Regular.define_regular_path(element)
         remove_processes = []
+        return_code = exit_codes['success']
+
         for item in items:
             if interactive:
                 answer = self.ask_for_confirmation(item)
                 if not answer:
-                    return
+                    continue
             exists = check_file_path(item)
             if not exists:
                 logging.error('File {file} does not exist'.format(file=item))
-                # exception
+                return_code = exit_codes['no_file']
             else:
                 access = check_access(exit_codes, item)
                 if access == exit_codes['error']:
                     logging.error('Item {file} is a system unit'.format(file=item))
-                    # exception
+                    return_code = exit_codes['error']
                 else:
                     file_id = trash.log_writer.create_file_dict(item)
                     item = rename_file_name_to_id(item, file_id, dry_run)
@@ -79,6 +85,8 @@ class SmartRm(object):
             rem_process.start()
         for rem_process in remove_processes:
             rem_process.join()
+
+        return return_code
 
     def remove_to_trash_file(self, path, dry_run, verbose):  # works
         logging.info('Remove {path}'.format(path=path))

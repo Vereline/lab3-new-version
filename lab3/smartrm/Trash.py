@@ -13,6 +13,13 @@ import ExeptionListener
 import threading
 import multiprocessing
 
+EXIT_CODES = {
+            'success': 0,
+            'conflict': 1,
+            'error': 2,
+            'no_file': 3
+        }
+
 
 class Trash(object):
     def __init__(self, path_trash, path_log_j, path_log_t, policy_time, policy_size, size, cur_size, capacity, time, q):
@@ -88,8 +95,12 @@ class Trash(object):
             clean_txt = open(self.log_writer.file_dict_path_txt, 'w')
             clean_txt.close()
 
+            return EXIT_CODES['success']
+
     def delete_manually(self, paths, dry_run=False, verbose=False, interactive=False):  # not checked
         # delete one file manually
+        return_code = EXIT_CODES['success']
+
         remove_processes = []
         for path in paths:
             if interactive:
@@ -125,6 +136,7 @@ class Trash(object):
                                 #shutil.rmtree(clean_path)
                             else:
                                 logging.error('File {n} with id {id} does not exist'.format(n=path, id=file_id))
+                                return_code = EXIT_CODES['error']
 
                     elif not os.path.isdir(clean_path):
                         # logging.info("Remove file".format())
@@ -138,6 +150,7 @@ class Trash(object):
                                 # os.remove(clean_path)
                             else:
                                 logging.error('File {n} with id {id} does not exist'.format(n=path, id=file_id))
+                                return_code = EXIT_CODES['error']
                         if verbose:
                             print 'item removed'
                     self.log_writer.delete_elem_by_id(file_id)
@@ -154,6 +167,8 @@ class Trash(object):
             proc.start()
         for proc in remove_processes:
             proc.join()
+
+        return return_code
 
     def get_path_by_id(self, file_id, path):  # not checked
         d = os.listdir(path)
@@ -205,8 +220,8 @@ class Trash(object):
                 except Exception as ex:
                     logging.error(ex.message)
 
-        self.restore_trash_manually(paths, dry_run, verbose, interactive_mode=False)
-
+        return_code = self.restore_trash_manually(paths, dry_run, verbose, interactive_mode=False)
+        return return_code
             # with
             # clean_json = open(self.log_writer.file_dict_path, 'w')
             # clean_json.close()
@@ -216,6 +231,7 @@ class Trash(object):
     def restore_trash_manually(self, paths, dry_run=False, verbose=False, interactive_mode=False):  # works
         # restore one file in the trash
         # check if the path already exists
+        return_code = EXIT_CODES['success']
         restore_processes = []
         for path in paths:
             if interactive_mode:
@@ -273,16 +289,18 @@ class Trash(object):
 
                         restore_processes.append(restore_proc)
                     else:
+                        return_code = EXIT_CODES['error']
                         logging.error('File {name} with id {id} does not exist'.format(name=new_name, id=file_id))
                     self.log_writer.delete_elem_by_id(file_id)
                     self.log_writer.write_to_json(dry_run)
                     self.log_writer.write_to_txt(dry_run)
 
-        print 'parallel mode'
         for proc in restore_processes:
             proc.start()
         for proc in restore_processes:
             proc.join()
+
+        return return_code
 
     def define_time_policy(self, dry_run, verbose):
         d = os.listdir(self.path)
@@ -408,7 +426,9 @@ class Trash(object):
 
         return suitable_names, suitable_id
 
-    def restore_by_regular(self, regex, dry_run=False, interactive=False, verbos=False):  # not tested
+    def restore_by_regular(self, regex, dry_run=False, interactive=False, verbose=False):  # not tested
+        return_code = EXIT_CODES['success']
+
         restore_processes = []
         names, ids = self.get_names_by_regular(regex)
         for file_id in ids:
@@ -451,6 +471,7 @@ class Trash(object):
                                 # os.rename(clean_path, dirname)
                                 # shutil.move(dirname, destination_path)
                             else:
+                                return_code = EXIT_CODES['error']
                                 logging.error('Item {n} with id {id} does not exist'.format(n=new_name, id=file_id))
                             # os.rename(clean_path, dirname)
                             # shutil.move(dirname, destination_path)
@@ -472,6 +493,7 @@ class Trash(object):
                             # os.rename(clean_path, dirname)
                             # shutil.move(dirname, destination_path)
                         else:
+                            return_code = EXIT_CODES['error']
                             logging.error('Item {n} with id {id} does not exist'.format(n=new_name, id=file_id))
                         # os.rename(clean_path, dirname)
                         # shutil.move(dirname, destination_path)
@@ -490,9 +512,12 @@ class Trash(object):
         for proc in restore_processes:
             proc.join()
 
+        return return_code
+
     def clean_by_regular(self, regex, dry_run=False, verbose=False, interactive=False):  # not tested
         names, ids = self.get_names_by_regular(regex)
         # do here not cycle but parallel
+        return_code = EXIT_CODES['success']
         clean_processes = []
         for file_id in ids:
             clean_path = self.get_path_by_id(file_id, self.path)
@@ -512,6 +537,7 @@ class Trash(object):
                         clean_processes.append(proc)
                         # shutil.rmtree(clean_path)
                     else:
+                        return_code = EXIT_CODES['error']
                         logging.error('Directory {n} with id {id} does not exist'.format(n=name, id=file_id))
                     self.log_writer.delete_elem_by_id(file_id)
                     self.log_writer.write_to_json(dry_run)
@@ -528,6 +554,7 @@ class Trash(object):
                         clean_processes.append(proc)
                         # os.remove(clean_path)
                     else:
+                        return_code = EXIT_CODES['error']
                         logging.error('File {n} with id {id} does not exist'.format(n=name, id=file_id))
                     self.log_writer.delete_elem_by_id(file_id)
                     self.log_writer.write_to_json(dry_run)
@@ -541,6 +568,8 @@ class Trash(object):
 
         for proc in clean_processes:
             proc.join()
+
+        return return_code
 
 
 def move_file_into_original_destination(clean_path, dirname, destination_path, verbose):

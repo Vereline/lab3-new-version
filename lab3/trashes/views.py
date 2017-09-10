@@ -207,9 +207,9 @@ def do_the_task(request, pk):
     print trash_task_object
     print 'do the task'
     trash_object = trash_task_object.trash
-    all_tasks = TaskToDo.objects.all()
+    all_tasks = list(TaskToDo.objects.all())
 
-    # works
+    all_tasks.remove(trash_task_object)
     #
     # trash_task_object.task_process = trash_task_object.DONE
     # trash_task_object.save()
@@ -223,9 +223,6 @@ def do_the_task(request, pk):
     t_max_s = trash_object.maximum_size
     t_max_t = trash_object.maximum_time
 
-
-    # works
-
     trash = smartrm_trash.Trash(trash_folder, trash_folder_info,
                                 trash_log_path_txt,
                                 t_policy_t, t_policy_s,
@@ -233,17 +230,30 @@ def do_the_task(request, pk):
                                 DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
                                 t_max_t,
                                 q=None)
-    # lock = multiprocessing.Lock()
-    # with lock:
-    #     trash_task_object.task_process = trash_task_object.INPROCESS
-    #     trash_task_object.save()
-    #
-    # myproc = multiprocessing.Process(target=threading_smrm.define_task, args=(trash_task_object, trash, lock))
-    # # threading_smrm.define_task(trash_task_object, trash)
-    # # time.sleep(3)
-    # myproc.start()
 
-    trash_list = trash.watch_trash(dry_run=False)
+    lock = multiprocessing.Lock()
+    waiting_tasks = []
+    waiting_tasks_previous_statuses = []
+
+    with lock:
+        trash_task_object.task_process = trash_task_object.INPROCESS
+        trash_task_object.save()
+        trash_object.is_busy = True
+        trash_object.save()
+        for task in all_tasks:
+            if (task.trash == trash_task_object) or task.trash.is_busy:
+                waiting_tasks_previous_statuses.append(task.task_process)
+                task.task_process = task.WAITING
+                task.save()
+                waiting_tasks.append(task)
+
+    # myproc = multiprocessing.Process(target=threading_smrm.define_task, args=(trash_task_object, trash, lock))
+    myproc = multiprocessing.Process(target=threading_smrm.manage_tasks, args=(trash_task_object, trash, trash_object,
+                                                                               waiting_tasks,
+                                                                               waiting_tasks_previous_statuses, lock,))
+    myproc.start()
+
+    trash_list = trash.watch_trash()
     print 'do the task'
     print {"name": pk, "trash_list": trash_list}
     # return TaskList.as_view()

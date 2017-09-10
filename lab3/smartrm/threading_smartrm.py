@@ -26,9 +26,9 @@ EXIT_CODES = {
         }
 
 
-def define_task(task, trash, lock):
+def define_task(task, trash, trash_object, lock):
     # lock = multiprocessing.Lock()
-
+    return_code = EXIT_CODES['success']
     elements = []
 
     current_task = task.file_task
@@ -37,44 +37,51 @@ def define_task(task, trash, lock):
 
     elements.append(task.file_path)
     if current_task == AVAILABLE_TASKS['dbr']:
-        smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES)
+        return_code = smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES)
 
     elif current_task == AVAILABLE_TASKS['dbf']:
-        smart_rm.operate_with_removal(elements, EXIT_CODES, trash)
+        return_code = smart_rm.operate_with_removal(elements, EXIT_CODES, trash)
 
     elif current_task == AVAILABLE_TASKS['rat']:
-        trash.restore_trash_automatically()
+        return_code = trash.restore_trash_automatically()
 
     elif current_task == AVAILABLE_TASKS['cat']:
-        trash.delete_automatically()
+        return_code = trash.delete_automatically()
 
     elif current_task == AVAILABLE_TASKS['rmfft']:
-        trash.delete_manually(elements)
+        return_code = trash.delete_manually(elements)
 
     elif current_task == AVAILABLE_TASKS['rcfft']:
-        trash.restore_trash_manually(elements)
+        return_code = trash.restore_trash_manually(elements)
 
     elif current_task == AVAILABLE_TASKS['rmfftr']:
-        trash.clean_by_regular(regex)
+        return_code = trash.clean_by_regular(regex)
 
     elif current_task == AVAILABLE_TASKS['rcfftr']:
-        trash.restore_by_regular(regex)
+        return_code = trash.restore_by_regular(regex)
+
+    print 'return code'
+    print return_code
     time.sleep(3)
     with lock:
-        task.task_process = task.DONE
+        trash_object.is_busy = False
+        if return_code == EXIT_CODES['success']:
+            task.task_process = task.DONE
+        else:
+            task.task_process = task.ERROR
+        trash_object.save()
         task.save()
 
 
-def manage_tasks(task, trash, another_trash_tasks, lock):
+def manage_tasks(task, trash, trash_object, another_trash_tasks, tasks_statuses, lock):
+    define_task(task, trash, trash_object, lock)
+
     with lock:
-        # if trash.path = task.trash.name => task from all_tasks.waiting
-        # and freeze the button (do it) in html
+        for i in range(len(another_trash_tasks)):
+            another_trash_tasks[i].task_process = tasks_statuses[i]
+            another_trash_tasks[i].save()
 
-        for task in another_trash_tasks:
-            task.task_process = task.WAITING
-            task.save()
 
-    define_task(task, trash, lock)
-    # maybe bring it to the views.py
-    # and all tasks do previous state(save it somewhere)
-    # in the end do trash.not busy
+        # for task in another_trash_tasks:
+        #     task.task_process = task.WAITING
+        #     task.save()

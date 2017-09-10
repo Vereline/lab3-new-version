@@ -55,11 +55,13 @@ class TaskToDo(models.Model):
     INPROCESS = 'In process'
     WAITING = 'Waiting'
     DONE = 'Done'
+    ERROR = 'Error'
     task_process_choices = (
         (NOTDONE, 'Not done'),
         (INPROCESS, 'In process'),
         (WAITING, 'Waiting'),
         (DONE, 'Done'),
+        (ERROR, 'Error'),
     )
     task_process = models.CharField(
         max_length=256,
