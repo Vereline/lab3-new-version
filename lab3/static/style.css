@@ -5,6 +5,7 @@
     /*color: #822585;*/
     font-weight: 100;
     font-size: large;
+    text-underline: none;
     /*line-height: 120px;*/
     /*font-family: 'cursive';*/
 
@@ -14,9 +15,10 @@
         background-color: lightblue;
         margin-top: 0;
         padding: 20px 20px 20px 40px;
-        font-family: 'cursive';
+        /*font-family: 'cursive';*/
         font-weight: 100;
         font-size: large;
+        text-underline: none;
         /*line-height: 120px;*/
         /*font-family: 'cursive';*/
     }
@@ -27,7 +29,7 @@ td a {
         margin-top: 0;
         padding: 10px 10px 10px 10px;
         color: #578965;
-        font-family: 'cursive';
+        /*font-family: 'cursive';*/
     }
 
  p{
@@ -36,8 +38,8 @@ td a {
         margin-bottom: 0;
         /*padding: 10px 10px 10px 10px;*/
      font-size: medium;
-        color: #822585;
-        font-family: 'cursive';
+        color: #4CAF50;
+        /*font-family: 'cursive';*/
     }
 
  .button {
@@ -50,3 +52,16 @@ td a {
     display: inline-block;
     font-size: 16px;
 }
+
+ TABLE {
+    /*width: 300px; !* Ширина таблицы *!*/
+    border-top: 2px solid #FFF; /* Линия сверху таблицы */
+    border-bottom: 2px solid #FFF; /* Линия внизу таблицы */
+   }
+   TD, TH {
+    padding: 5px; /* Поля вокруг содержимого ячеек */
+   }
+   TH {
+    text-align: left; /* Выравнивание текста по левому краю */
+    border-bottom: 1px solid #000; /* Линия под верхним заголовком */
+   }

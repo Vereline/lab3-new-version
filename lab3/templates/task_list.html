@@ -48,31 +48,7 @@
 {% else %}
 <p> task is done</p>
 {% endif %}
-{##}
-{#<form method="post" action="">{% csrf_token %}#}
-{#    {{ form.as_p }}#}
-{#    <input type="submit" value="Create Task">#}
-{#</form>#}
-{#    <tbody>#}
-{#        <tr>#}
-{#            <td ><div><a href={% url 'add_trash'%}>Add new trash</a></div></td>#}
-{#            <td ><div><a href={% url 'task_list'%}>Task list</a></div></td>#}
-{#        </tr>#}
-{#    </tbody>#}
-{#    </table>#}
-{#{% for obj in object_list %}#}
-{#    <table>#}
-{#    <tbody>#}
-{#        <tr>#}
-{#            <td ><div><a href={% url 'define_action' pk=obj.pk %}>{{ obj.pk }}</a></div></td>#}
-{#            <td ><div>{{ obj.path }}</div></td>#}
-{#            <td ><div><a href={% url 'refresh_task' pk=obj.pk %}>Refresh task</a></div></td>#}
-{#            <td ><div><a href={% url 'delete_task' pk=obj.pk %}>Delete task</a></div></td>#}
-{#        </tr>#}
-{#    </tbody>#}
-{#    </table>#}
-{#{% endfor %}#}
 
 {% endblock %}
-</body>
-</html>
+{#</body>#}
+{#</html>#}

@@ -45,12 +45,7 @@ class Main(ListView):
 class TaskList(ListView):
     template_name = 'task_list.html'
     model = TaskToDo
-    #
-    # def get_context_data(self, **kwargs):
-    #     context = super(TaskList,self).get_context_data()
-    #
-    # def render_to_response(self, context, **response_kwargs):
-    #     pass
+
 
 
 class AddTrash(CreateView):
@@ -103,8 +98,8 @@ class DeleteTask(DeleteView):
               'maximum_time', 'maximum_size', 'trash', 'regular', )
 
 
-def define_action(request, name):
-    trash_object = get_object_or_404(Trash, name=name)
+def define_action(request, pk):
+    trash_object = get_object_or_404(Trash, pk=pk)
     trash_folder = trash_object.path
     trash_folder_info = trash_object.info_path
     # add_trash(trash_fold)
@@ -120,17 +115,17 @@ def define_action(request, name):
                                 t_max_s,
                                 DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
                                 t_max_t,
-                                q=None)
+                                q=ask_for_confirmation("trash"))
     # trash_path = os.path.join(trash_object.path, "trash")
     # info_path = os.path.join(trash_object.path, "info")
 
     trash_list = trash.watch_trash()
-    print {"name": name, "trash_list": trash_list}
-    return render(request, "define_action.html", {"name": name, "trash_list": trash_list})
+    print {"pk": pk, "trash_list": trash_list}
+    return render(request, "define_action.html", {"pk": pk, "trash_list": trash_list})
 
 
-def remove_file(request, name):
-    trash_object = get_object_or_404(Trash, name=name)
+def remove_file(request, pk):
+    trash_object = get_object_or_404(Trash, pk=pk)
     # trash_path = os.path.join(trash_object.path, "trash")
     trash_folder = trash_object.path
     trash_folder_info = trash_object.info_path
@@ -146,26 +141,29 @@ def remove_file(request, name):
                                 t_max_s,
                                 DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
                                 t_max_t,
-                                q=None)
+                                q=ask_for_confirmation("trash"))
 
     # print trash
     path = request.POST.getlist('file')
     # info_path = os.path.join(trash_object.path, "info")
-    print 'REMOVE'
-    my_names = []
-    for item in path:
-        s = ast.literal_eval(item)  # str to dict
-        my_names.append(s['name'])
-        # s = item.encode('utf-8')
-        # info_dict = json.loads(item)  # problems with double quotes
 
-    trash.delete_manually(my_names)
+    # REDO REDO REDO
 
-    return define_action(request, name)
+    # print 'REMOVE'
+    # my_names = []
+    # for item in path:
+    #     s = ast.literal_eval(item)  # str to dict
+    #     my_names.append(s['name'])
+    #     # s = item.encode('utf-8')
+    #     # info_dict = json.loads(item)  # problems with double quotes
+    #
+    # # trash.delete_manually(my_names)
+
+    return define_action(request, pk)
 
 
-def recover_file(request, name):
-    trash_object = get_object_or_404(Trash, name=name)
+def recover_file(request, pk):
+    trash_object = get_object_or_404(Trash, pk=pk)
     # trash_path = os.path.join(trash_object.path, "trash")
     trash_folder = trash_object.path
     trash_folder_info = trash_object.info_path
@@ -181,7 +179,7 @@ def recover_file(request, name):
                                 t_max_s,
                                 DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
                                 t_max_t,
-                                q=None)
+                                q=ask_for_confirmation("trash"))
 
     print trash
     path = request.POST.getlist('file')
@@ -195,8 +193,8 @@ def recover_file(request, name):
         # print info_dict
         # my_names.append(info_dict['name'])
 
-    trash.restore_trash_manually(my_names, False, False, False)
-    return define_action(request, name)
+    # trash.restore_trash_manually(my_names)
+    return define_action(request, pk)
 
 
 def do_the_task(request, pk):
@@ -229,7 +227,8 @@ def do_the_task(request, pk):
                                 t_max_s,
                                 DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
                                 t_max_t,
-                                q=None)
+                                q=ask_for_confirmation("trash"))
+                                # q=None)
 
     lock = multiprocessing.Lock()
     waiting_tasks = []
@@ -260,3 +259,16 @@ def do_the_task(request, pk):
     return redirect('/task_list')
 
 
+def ask_for_confirmation(filename, silent=False):
+    answer = raw_input('Operation with {filename}. Are you sure? [y/n]\n'.format(filename=filename))
+    if answer == 'n' or answer == 'N':
+        if not silent:
+            print('Operation canceled')
+        return False
+    elif answer == 'y' or answer == 'Y':
+        if not silent:
+            print('Operation continued')
+        return True
+        # sys.exit(self.exit_codes['success'])
+    elif answer != 'y' and answer != 'n' and answer != 'N' and answer != 'Y':
+        ask_for_confirmation(filename)

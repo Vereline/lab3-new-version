@@ -255,7 +255,8 @@ class Trash(object):
 
                 if len(files_id) > 1:
                     logging.info('Restore {name}, id = {id}?'.format(name=new_name, id=file_id))
-                    ans = self.ask_for_confirmation(new_name)
+                    # ans = self.ask_for_confirmation(new_name)
+                    ans = True
                 if not ans:
                     continue
 
@@ -607,3 +608,20 @@ def check_file_path(path):
         return True
     else:
         return False
+
+
+def regular_rmtree(directory):  # not checked(check in empty random py file)
+    dir_list = os.listdir(directory)
+    for item in dir_list:
+        if os.path.isfile(item):
+            os.remove(item)
+
+        elif os.path.isdir(item):
+            if not os.listdir(item):
+                os.rmdir(item)
+            elif os.listdir(item):
+                regular_rmtree(item)
+
+    if not os.listdir(directory):
+        os.rmdir(directory)
+

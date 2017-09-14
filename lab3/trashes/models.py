@@ -12,8 +12,8 @@ class Trash(models.Model):
     info_path = models.CharField(max_length=256, default=' ')
     info_txt_path = models.CharField(max_length=256, default=' ')
     info_logging_path = models.CharField(max_length=256, default=' ')
-    maximum_size = models.IntegerField(default=1000)
-    maximum_time = models.IntegerField(default=7)
+    maximum_size = models.PositiveIntegerField(default=1000)
+    maximum_time = models.PositiveIntegerField(default=7)
     policy_time = models.BooleanField(default=False)
     policy_size = models.BooleanField(default=False)
     is_busy = models.BooleanField(default=False)
@@ -48,8 +48,8 @@ class TaskToDo(models.Model):
     file_task = models.CharField(max_length=256, choices=tasks, default=None)
     regular = models.CharField(max_length=256, default=' ')
     info_path = models.CharField(max_length=256, default=' ')
-    maximum_size = models.IntegerField(default=1000)
-    maximum_time = models.IntegerField(default=7)
+    maximum_size = models.PositiveIntegerField(default=1000)
+    maximum_time = models.PositiveIntegerField(default=7)
 
     NOTDONE = 'Not done'
     INPROCESS = 'In process'

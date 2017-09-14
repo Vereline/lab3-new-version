@@ -4,6 +4,7 @@
 import threading
 import Trash
 import Smart_rm
+import Logger
 import multiprocessing
 import time
 
@@ -30,6 +31,8 @@ def define_task(task, trash, trash_object, lock):
     # lock = multiprocessing.Lock()
     return_code = EXIT_CODES['success']
     elements = []
+    silent = False  # redo for the trash_object.silent
+    logger = Logger.Logger(trash_object.info_logging_path, silent)
 
     current_task = task.file_task
     regex = task.regular
@@ -37,7 +40,7 @@ def define_task(task, trash, trash_object, lock):
 
     elements.append(task.file_path)
     if current_task == AVAILABLE_TASKS['dbr']:
-        return_code = smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES)
+        return_code = smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES, task.file_path)
 
     elif current_task == AVAILABLE_TASKS['dbf']:
         return_code = smart_rm.operate_with_removal(elements, EXIT_CODES, trash)

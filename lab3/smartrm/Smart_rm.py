@@ -53,8 +53,9 @@ class SmartRm(object):
 
         return return_code
 
-    def operate_with_regex_removal(self, element, trash, exit_codes, dry_run=False, verbose=False, interactive=False):
-        items = Regular.define_regular_path(element)
+    def operate_with_regex_removal(self, element, trash, exit_codes, path_of_regular_search,
+                                   dry_run=False, verbose=False, interactive=False):
+        items = Regular.define_regular_path(element, path_of_regular_search)
         remove_processes = []
         return_code = exit_codes['success']
 

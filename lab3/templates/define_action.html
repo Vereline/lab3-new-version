@@ -18,39 +18,42 @@
             </tr>
         </tbody>
     </table>
-    <table >
-    <tbody>
-    <tr>
-    <td >
-        {%  if trash_list %}
-            <form  method="post">{% csrf_token %}
-            <ul>
-                {% for obj in trash_list %}
-                    <label class="">
-                    <input type="checkbox" name="file" value="{{ obj }}">
-                        {{ obj.path }}
-                    </label>
-                    <p></p>
-                {% endfor %}
-            <p></p>
-            <input type="submit" value="Remove" formaction="{% url 'remove' name %}">
-            <input type="submit" value="Recover" formaction="{% url 'recover' name %}">
-            </ul>
-             </form>
-{#            <form action="{% url 'recover' name %}" method="post">{% csrf_token %}#}
-{#            <ul>#}
-{#            <input type="submit" value="Recover">#}
-{#            </ul>#}
-{#             </form>#}
+    {%  if trash_list %}
+    <form  method="post">{% csrf_token %}
+    <ul>
+        <table >
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Path</th>
+                    <th>Date</th>
+                </tr>
+                    {% for obj in trash_list %}
+                        <tr>
+                            <td >
+                                <label >
+                                    <input type="checkbox" name="file" value="{{ obj }}">{{ obj.name }}
+                                </label>
+                            </td>
+                            <td>{{ obj.id }}</td>
+                            <td>{{ obj.path }}</td>
+                            <td>{{ obj.date }}</td>
+                        </tr>
+                    {% endfor %}
 
-        {% else %}
-            <p>Your trash is empty</p>
-        {% endif %}
+            </tbody>
+        </table>
 
-    </td>
-    </tr>
-    </tbody>
-    </table>
+    <input class="button" type="submit" value="Remove" formaction="{% url 'remove' pk %}">
+    <input class="button" type="submit" value="Recover" formaction="{% url 'recover' pk %}">
+    </ul>
+    </form>
+
+{% else %}
+    <p>Your trash is empty</p>
+{% endif %}
+
 {% endblock %}
 
 {#</body>#}

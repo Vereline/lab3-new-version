@@ -28,9 +28,9 @@ urlpatterns = [
     url(r'^refresh_trash/(?P<pk>\d+)$', views.RefreshTrash.as_view(), name='refresh_trash'),
     url(r'^delete_task/(?P<pk>\d+)$', views.DeleteTask.as_view(), name='delete_task'),
     url(r'^refresh_task/(?P<pk>\d+)$', views.RefreshTask.as_view(), name='refresh_task'),
-    url(r'^define_action/(?P<name>[a-zA-Z0-9]+)$', views.define_action, name='define_action'),
-    url(r'^define_action/remove/(?P<name>[a-zA-Z0-9]+)$', views.remove_file, name='remove'),
-    url(r'^define_action/recover/(?P<name>[a-zA-Z0-9]+)$', views.recover_file, name='recover'),
+    url(r'^define_action/(?P<pk>[a-zA-Z0-9]+)$', views.define_action, name='define_action'),
+    url(r'^define_action/remove/(?P<pk>[a-zA-Z0-9]+)$', views.remove_file, name='remove'),
+    url(r'^define_action/recover/(?P<pk>[a-zA-Z0-9]+)$', views.recover_file, name='recover'),
     url(r'^task_list/do_the_task/(?P<pk>[a-zA-Z0-9]+)$', views.do_the_task, name='do_the_task'),
 
 ]

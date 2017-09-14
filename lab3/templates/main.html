@@ -24,7 +24,7 @@
     <table style="margin-left: auto; margin-right: auto; background-color: #E0FFFF" width= 70%>
     <tbody>
         <tr>
-            <td style="width: 100px; text-align: center"><div><a href={% url 'define_action' name=obj.name %}>{{ obj.name }}</a></div></td>
+            <td style="width: 100px; text-align: center"><div><a href={% url 'define_action' pk=obj.pk %}>{{ obj.name }}</a></div></td>
             <td style="width: 100px; text-align: center"><div>{{ obj.path }}</div></td>
             <td style="width: 100px; text-align: center"><div><a href={% url 'refresh_trash' pk=obj.pk %}>Refresh trash</a></div></td>
             <td style="width: 100px; text-align: center"><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete trash</a></div></td>
@@ -33,23 +33,7 @@
     </table>
 {% endfor %}
 
-<!--
-<div>
-                <h1><a href="">Django Girls Blog</a></h1>
-            </div>
 
-            <div>
-                <p>published: 14.06.2014, 12:14</p>
-                <h2><a href="">My first post</a></h2>
-                <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-            </div>
-
-            <div>
-                <p>published: 14.06.2014, 12:14</p>
-                <h2><a href="">My second post</a></h2>
-                <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut f.</p>
-            </div>
--->
 {% endblock %}
 {#</body>#}
 {#</html>#}
