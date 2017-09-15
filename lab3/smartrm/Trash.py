@@ -12,6 +12,7 @@ import re
 import ExeptionListener
 import threading
 import multiprocessing
+from multiprocessing import Pool
 
 EXIT_CODES = {
             'success': 0,
@@ -50,23 +51,11 @@ class Trash(object):
         self.ask_for_confirmation = q
         self.lock = threading.Lock()
 
-    def remove_item_from_trash_for_automatical(self, subpath, dict_contains):
-        try:
-            if dict_contains:
-                if os.path.isdir(subpath):
-                    shutil.rmtree(subpath)
-                elif not os.path.isdir(subpath):
-                    os.remove(subpath)
-
-        except ExeptionListener.TrashError as ex:
-            logging.error(ex.msg)
-        except Exception as ex:
-            logging.error(ex.message)
-
     def delete_automatically(self, dry_run=False, verbose=False):  # works
         # delete the whole trash
         logging.info("Clean the whole trash".format())
-        remove_processes = []
+        # remove_processes = []
+        subpaths = []
         if dry_run:
             print 'clean trash'
         else:
@@ -78,15 +67,22 @@ class Trash(object):
                     if _dict['id'] == item:
                         dict_contains = True
                         break
-                remove_proc = multiprocessing.Process(target=self.remove_item_from_trash_for_automatical,
-                                                      args=(subpath, dict_contains,))
-                remove_processes.append(remove_proc)
+                if dict_contains:
+                    subpaths.append(subpath)
 
-            for proc in remove_processes:
-                proc.start()
-            for proc in remove_processes:
-                proc.join()
-
+                        ####### do this thing with multiprocessing pol map
+            #     remove_proc = multiprocessing.Process(target=self.remove_item_from_trash_for_automatical,
+            #                                           args=(subpath, dict_contains,))
+            #     remove_processes.append(remove_proc)
+            #
+            # for proc in remove_processes:
+            #     proc.start()
+            # for proc in remove_processes:
+            #     proc.join()
+            thread_pool = Pool(processes=multiprocessing.cpu_count()*2)
+            thread_pool.map(remove_item_from_trash, subpaths)
+            thread_pool.close()
+            thread_pool.join()
             if verbose:
                 print 'trash cleaned'
             logging.info("Clean information about files".format())
@@ -97,29 +93,33 @@ class Trash(object):
 
             return EXIT_CODES['success']
 
-    def delete_manually(self, paths, dry_run=False, verbose=False, interactive=False):  # not checked
+    def delete_manually(self, paths, custom_ids='', dry_run=False, verbose=False, interactive=False):  # not checked
         # delete one file manually
         return_code = EXIT_CODES['success']
 
         remove_processes = []
-        for path in paths:
+        for i, path in enumerate(paths):
             if interactive:
                 answer = self.ask_for_confirmation(path)
                 if not answer:
                     continue
-            files_id = self.search_for_all_files_with_this_name(path)  # some problems with functions defined
-            if len(files_id) > 1:
-                logging.warning('Found more than 1 file with name {name}'.format(name=path))
-            elif len(files_id) <= 0:
-                logging.warning('There is no such file or directory')
-                continue
+
+            if type(custom_ids) is type(list) and len(custom_ids) > 0:
+                files_id = custom_ids[i]
+            else:
+                files_id = self.search_for_all_files_with_this_name(path)  # some problems with functions defined
+                if len(files_id) > 1:
+                    logging.warning('Found more than 1 file with name {name}'.format(name=path))
+                elif len(files_id) <= 0:
+                    logging.warning('There is no such file or directory')
+                    continue
 
             for file_id in files_id:
                 # file_id = self.log_writer.get_id(path)
                 clean_path = self.get_path_by_id(file_id, self.path)
                 ans = True
                 if len(files_id) > 1:
-                    logging.info('Restore {name}, id = {id}?'.format(name=path, id=file_id))
+                    logging.info('Delete {name}, id = {id}?'.format(name=path, id=file_id))
                     ans = self.ask_for_confirmation(path)
                 if not ans:
                     continue
@@ -130,8 +130,10 @@ class Trash(object):
                             print 'remove directory'
                         else:
                             if check_file_path(clean_path):
-                                proc = multiprocessing.Process(target=shutil.rmtree,
+                                proc = multiprocessing.Process(target=regular_rmtree,
                                                                args=(clean_path,))
+                                # proc = multiprocessing.Process(target=shutil.rmtree,
+                                #                                args=(clean_path,))
                                 remove_processes.append(proc)
                                 #shutil.rmtree(clean_path)
                             else:
@@ -162,6 +164,8 @@ class Trash(object):
                 except Exception as ex:
                     logging.error(ex.message)
 
+
+        ########### do this thing with multiprocessing pool
         for proc in remove_processes:
             logging.info('Delete item from trash'.format())
             proc.start()
@@ -198,7 +202,7 @@ class Trash(object):
             print 'restore the whole trash'
         else:
             d = os.listdir(self.path)
-            for item in d: # DO HERE PARRALEL
+            for item in d:
                 subpath = os.path.join(self.path, item)  # form the address
                 dict_contains = False
                 for _dict in self.log_writer.file_dict_arr:
@@ -220,7 +224,8 @@ class Trash(object):
                 except Exception as ex:
                     logging.error(ex.message)
 
-        return_code = self.restore_trash_manually(paths, dry_run, verbose, interactive_mode=False)
+        custom_ids = ''
+        return_code = self.restore_trash_manually(paths, custom_ids, dry_run, verbose, interactive_mode=False)
         return return_code
             # with
             # clean_json = open(self.log_writer.file_dict_path, 'w')
@@ -228,23 +233,31 @@ class Trash(object):
             # clean_txt = open(self.log_writer.file_dict_path_txt, 'w')
             # clean_txt.close()
 
-    def restore_trash_manually(self, paths, dry_run=False, verbose=False, interactive_mode=False):  # works
+    def restore_trash_manually(self, paths, custom_ids='', dry_run=False, verbose=False, interactive_mode=False):
         # restore one file in the trash
         # check if the path already exists
+
         return_code = EXIT_CODES['success']
         restore_processes = []
-        for path in paths:
+        for i, path in enumerate(paths):
             if interactive_mode:
                 answer = self.ask_for_confirmation(path)
                 if not answer:
                     continue
 
-            files_id = self.search_for_all_files_with_this_name(path)
-            if len(files_id) > 1:
-                logging.warning('Found more than 1 file with name {name}'.format(name=path))
-            elif len(files_id) <= 0:
-                logging.warning('There is no such file or directory')
-                continue
+            if len(custom_ids) > 0:
+
+                files_id = []
+                files_id.append(custom_ids[i])
+
+            else:
+                files_id = self.search_for_all_files_with_this_name(path)
+                if len(files_id) > 1:
+                    logging.warning('Found more than 1 file with name {name}'.format(name=path))
+                elif len(files_id) <= 0:
+                    logging.warning('There is no such file or directory')
+                    continue
+
             for file_id in files_id:
                 ans = True
                 # file_id = self.log_writer.get_id(path)
@@ -285,10 +298,11 @@ class Trash(object):
                     print 'clean record from json'
                 else:
                     if check_file_path(clean_path):
-                        restore_proc = multiprocessing.Process(target=move_file_into_original_destination,
-                                                               args=(clean_path, dirname, destination_path, verbose, ))
-
-                        restore_processes.append(restore_proc)
+                        move_file_into_original_destination(clean_path, dirname, destination_path, verbose)
+                        # restore_proc = multiprocessing.Process(target=move_file_into_original_destination,
+                        #                                        args=(clean_path, dirname, destination_path, verbose, ))
+                        #
+                        # restore_processes.append(restore_proc)
                     else:
                         return_code = EXIT_CODES['error']
                         logging.error('File {name} with id {id} does not exist'.format(name=new_name, id=file_id))
@@ -296,10 +310,11 @@ class Trash(object):
                     self.log_writer.write_to_json(dry_run)
                     self.log_writer.write_to_txt(dry_run)
 
-        for proc in restore_processes:
-            proc.start()
-        for proc in restore_processes:
-            proc.join()
+        # not need because of O(1) ???
+        # for proc in restore_processes:
+        #     proc.start()
+        # for proc in restore_processes:
+        #     proc.join()
 
         return return_code
 
@@ -466,9 +481,10 @@ class Trash(object):
                     if ans:
                         try:
                             if check_file_path(clean_path):
-                                proc = multiprocessing.Process(target=move_file_into_original_destination,
-                                                               args=(clean_path, dirname, destination_path, verbose,))
-                                restore_processes.append(proc)
+                                move_file_into_original_destination(clean_path, dirname, destination_path, verbose)
+                                # proc = multiprocessing.Process(target=move_file_into_original_destination,
+                                #                                args=(clean_path, dirname, destination_path, verbose,))
+                                # restore_processes.append(proc)
                                 # os.rename(clean_path, dirname)
                                 # shutil.move(dirname, destination_path)
                             else:
@@ -488,9 +504,10 @@ class Trash(object):
                 else:
                     try:
                         if check_file_path(clean_path):
-                            proc = multiprocessing.Process(target=move_file_into_original_destination,
-                                                           args=(clean_path, dirname, destination_path, verbose,))
-                            restore_processes.append(proc)
+                            move_file_into_original_destination(clean_path, dirname, destination_path, verbose)
+                            # proc = multiprocessing.Process(target=move_file_into_original_destination,
+                            #                                args=(clean_path, dirname, destination_path, verbose,))
+                            # restore_processes.append(proc)
                             # os.rename(clean_path, dirname)
                             # shutil.move(dirname, destination_path)
                         else:
@@ -508,10 +525,10 @@ class Trash(object):
                     except Exception as ex:
                         logging.error(ex.message)
 
-        for proc in restore_processes:
-            proc.start()
-        for proc in restore_processes:
-            proc.join()
+        # for proc in restore_processes:
+        #     proc.start()
+        # for proc in restore_processes:
+        #     proc.join()
 
         return return_code
 
@@ -534,8 +551,10 @@ class Trash(object):
                     if verbose:
                         print 'remove item'
                     if check_file_path(clean_path):
-                        proc = multiprocessing.Process(target=shutil.rmtree, args=(clean_path,))
+                        proc = multiprocessing.Process(target=regular_rmtree, args=(clean_path,))
                         clean_processes.append(proc)
+                        # proc = multiprocessing.Process(target=shutil.rmtree, args=(clean_path,))
+                        # clean_processes.append(proc)
                         # shutil.rmtree(clean_path)
                     else:
                         return_code = EXIT_CODES['error']
@@ -610,18 +629,38 @@ def check_file_path(path):
         return False
 
 
-def regular_rmtree(directory):  # not checked(check in empty random py file)
+def regular_rmtree(directory):
     dir_list = os.listdir(directory)
-    for item in dir_list:
+    # print 'list', dir_list
+    for ite in dir_list:
+        item = os.path.join(directory, ite)
+        print item
         if os.path.isfile(item):
+            # print 'filename', item
             os.remove(item)
-
         elif os.path.isdir(item):
             if not os.listdir(item):
+                # print 'empty folder', item
                 os.rmdir(item)
             elif os.listdir(item):
+                # print 'full folder', item
                 regular_rmtree(item)
-
     if not os.listdir(directory):
         os.rmdir(directory)
+
+
+def remove_item_from_trash(subpath, dict_contains=True):
+    print 'try with pool'
+    try:
+        if dict_contains:
+            if os.path.isdir(subpath):
+                regular_rmtree(subpath)
+                # shutil.rmtree(subpath) #### change it
+            elif not os.path.isdir(subpath):
+                os.remove(subpath)
+        print 'works with pool'
+    except ExeptionListener.TrashError as ex:
+        logging.error(ex.msg)
+    except Exception as ex:
+        logging.error(ex.message)
 

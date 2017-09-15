@@ -5,6 +5,7 @@ import threading
 import Trash
 import Smart_rm
 import Logger
+import logging
 import multiprocessing
 import time
 
@@ -31,7 +32,7 @@ def define_task(task, trash, trash_object, lock):
     # lock = multiprocessing.Lock()
     return_code = EXIT_CODES['success']
     elements = []
-    silent = False  # redo for the trash_object.silent
+    silent = task.silent  # redo for the trash_object.silent
     logger = Logger.Logger(trash_object.info_logging_path, silent)
 
     current_task = task.file_task
@@ -40,32 +41,34 @@ def define_task(task, trash, trash_object, lock):
 
     elements.append(task.file_path)
     if current_task == AVAILABLE_TASKS['dbr']:
-        return_code = smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES, task.file_path)
+        return_code = smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES, task.file_path,
+                                                          dry_run=task.dry_run)
 
     elif current_task == AVAILABLE_TASKS['dbf']:
-        return_code = smart_rm.operate_with_removal(elements, EXIT_CODES, trash)
+        return_code = smart_rm.operate_with_removal(elements, EXIT_CODES, trash,
+                                                    dry_run=task.dry_run)
 
     elif current_task == AVAILABLE_TASKS['rat']:
-        return_code = trash.restore_trash_automatically()
+        return_code = trash.restore_trash_automatically(dry_run=task.dry_run)
 
     elif current_task == AVAILABLE_TASKS['cat']:
-        return_code = trash.delete_automatically()
+        return_code = trash.delete_automatically(dry_run=task.dry_run)
 
     elif current_task == AVAILABLE_TASKS['rmfft']:
-        return_code = trash.delete_manually(elements)
+        return_code = trash.delete_manually(elements, dry_run=task.dry_run)
 
     elif current_task == AVAILABLE_TASKS['rcfft']:
-        return_code = trash.restore_trash_manually(elements)
+        return_code = trash.restore_trash_manually(elements, dry_run=task.dry_run)
 
     elif current_task == AVAILABLE_TASKS['rmfftr']:
-        return_code = trash.clean_by_regular(regex)
+        return_code = trash.clean_by_regular(regex, dry_run=task.dry_run)
 
     elif current_task == AVAILABLE_TASKS['rcfftr']:
-        return_code = trash.restore_by_regular(regex)
+        return_code = trash.restore_by_regular(regex, dry_run=task.dry_run)
 
-    print 'return code'
-    print return_code
-    time.sleep(3)
+    logging.info('Check policies')
+    trash.check_policy(task.dry_run, verbose=True)
+
     with lock:
         trash_object.is_busy = False
         if return_code == EXIT_CODES['success']:

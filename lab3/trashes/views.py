@@ -9,6 +9,8 @@ import os
 import smartrm.Trash as smartrm_trash
 #import smartrm.Smart_rm as smart_rm
 # from smartrm.Trash import Trash
+import smartrm.Logger as Logger
+import logging
 from .forms import TrashForm, TaskForm
 from django.urls import reverse_lazy
 import json
@@ -19,9 +21,6 @@ import multiprocessing
 
 # Create your views here.
 
-
-# def trash_main(request):
-#     return render(request, 'main.html', {})
 
 DEFAULT_CONFIG = {
     "path": "/home/vereline/Trash",
@@ -158,7 +157,8 @@ def remove_file(request, pk):
     #     # info_dict = json.loads(item)  # problems with double quotes
     #
     # # trash.delete_manually(my_names)
-
+    logging.info('Check policies')
+    trash.check_policy(dry_run=False, verbose=True)
     return define_action(request, pk)
 
 
@@ -177,7 +177,8 @@ def recover_file(request, pk):
                                 trash_log_path_txt,
                                 t_policy_t, t_policy_s,
                                 t_max_s,
-                                DEFAULT_CONFIG['current_size'], DEFAULT_CONFIG['max_capacity'],
+                                DEFAULT_CONFIG['current_size'],
+                                DEFAULT_CONFIG['max_capacity'],
                                 t_max_t,
                                 q=ask_for_confirmation("trash"))
 
@@ -185,15 +186,17 @@ def recover_file(request, pk):
     path = request.POST.getlist('file')
 
     my_names = []
+    my_ids = []
     for item in path:
         s = ast.literal_eval(item)  # str to dict
         my_names.append(s['name'])
-        # s = item.encode('utf-8')
-        # info_dict = json.loads(item)  # problems with double quotes
-        # print info_dict
-        # my_names.append(info_dict['name'])
+        my_ids.append(s['id'])
 
-    # trash.restore_trash_manually(my_names)
+
+    logger = Logger.Logger(trash_object.info_logging_path, silent=False)
+    trash.restore_trash_manually(my_names, custom_ids=my_ids)
+    logging.info('Check policies')
+    trash.check_policy(dry_run=False, verbose=True)
     return define_action(request, pk)
 
 
@@ -259,8 +262,9 @@ def do_the_task(request, pk):
     return redirect('/task_list')
 
 
-def ask_for_confirmation(filename, silent=False):
-    answer = raw_input('Operation with {filename}. Are you sure? [y/n]\n'.format(filename=filename))
+def ask_for_confirmation(filename, silent=False, answer='Y'):
+    if answer is None:
+        answer = raw_input('Operation with {filename}. Are you sure? [y/n]\n'.format(filename=filename))
     if answer == 'n' or answer == 'N':
         if not silent:
             print('Operation canceled')
