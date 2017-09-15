@@ -97,7 +97,8 @@ class Trash(object):
         # delete one file manually
         return_code = EXIT_CODES['success']
 
-        remove_processes = []
+        # remove_processes = []
+        subpaths = []
         for i, path in enumerate(paths):
             if interactive:
                 answer = self.ask_for_confirmation(path)
@@ -130,12 +131,13 @@ class Trash(object):
                             print 'remove directory'
                         else:
                             if check_file_path(clean_path):
-                                proc = multiprocessing.Process(target=regular_rmtree,
-                                                               args=(clean_path,))
-                                # proc = multiprocessing.Process(target=shutil.rmtree,
+                                subpaths.append(clean_path)
+                                # proc = multiprocessing.Process(target=regular_rmtree,
                                 #                                args=(clean_path,))
-                                remove_processes.append(proc)
-                                #shutil.rmtree(clean_path)
+                                # # proc = multiprocessing.Process(target=shutil.rmtree,
+                                # #                                args=(clean_path,))
+                                # remove_processes.append(proc)
+                                # #shutil.rmtree(clean_path)
                             else:
                                 logging.error('File {n} with id {id} does not exist'.format(n=path, id=file_id))
                                 return_code = EXIT_CODES['error']
@@ -146,9 +148,10 @@ class Trash(object):
                             print 'remove file'
                         else:
                             if check_file_path(clean_path):
-                                proc = multiprocessing.Process(target=os.remove,
-                                                               args=(clean_path,))
-                                remove_processes.append(proc)
+                                subpaths.append(clean_path)
+                                # proc = multiprocessing.Process(target=os.remove,
+                                #                                args=(clean_path,))
+                                # remove_processes.append(proc)
                                 # os.remove(clean_path)
                             else:
                                 logging.error('File {n} with id {id} does not exist'.format(n=path, id=file_id))
@@ -164,13 +167,16 @@ class Trash(object):
                 except Exception as ex:
                     logging.error(ex.message)
 
-
+            thread_pool = Pool(processes=multiprocessing.cpu_count() * 2)
+            thread_pool.map(remove_item_from_trash, subpaths)
+            thread_pool.close()
+            thread_pool.join()
         ########### do this thing with multiprocessing pool
-        for proc in remove_processes:
-            logging.info('Delete item from trash'.format())
-            proc.start()
-        for proc in remove_processes:
-            proc.join()
+        # for proc in remove_processes:
+        #     logging.info('Delete item from trash'.format())
+        #     proc.start()
+        # for proc in remove_processes:
+        #     proc.join()
 
         return return_code
 
@@ -537,6 +543,7 @@ class Trash(object):
         # do here not cycle but parallel
         return_code = EXIT_CODES['success']
         clean_processes = []
+        subpaths = []
         for file_id in ids:
             clean_path = self.get_path_by_id(file_id, self.path)
             name = self.log_writer.get_name(file_id)
@@ -551,8 +558,9 @@ class Trash(object):
                     if verbose:
                         print 'remove item'
                     if check_file_path(clean_path):
-                        proc = multiprocessing.Process(target=regular_rmtree, args=(clean_path,))
-                        clean_processes.append(proc)
+                        subpaths.append(clean_path)
+                        # proc = multiprocessing.Process(target=regular_rmtree, args=(clean_path,))
+                        # clean_processes.append(proc)
                         # proc = multiprocessing.Process(target=shutil.rmtree, args=(clean_path,))
                         # clean_processes.append(proc)
                         # shutil.rmtree(clean_path)
@@ -634,7 +642,7 @@ def regular_rmtree(directory):
     # print 'list', dir_list
     for ite in dir_list:
         item = os.path.join(directory, ite)
-        print item
+        # print item
         if os.path.isfile(item):
             # print 'filename', item
             os.remove(item)
@@ -650,15 +658,15 @@ def regular_rmtree(directory):
 
 
 def remove_item_from_trash(subpath, dict_contains=True):
-    print 'try with pool'
     try:
+        logging.info('start process in pool')
         if dict_contains:
             if os.path.isdir(subpath):
                 regular_rmtree(subpath)
                 # shutil.rmtree(subpath) #### change it
             elif not os.path.isdir(subpath):
                 os.remove(subpath)
-        print 'works with pool'
+        logging.info('finish process in pool')
     except ExeptionListener.TrashError as ex:
         logging.error(ex.msg)
     except Exception as ex:

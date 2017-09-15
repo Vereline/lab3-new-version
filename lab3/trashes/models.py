@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 import os
+from django.core.validators import MaxValueValidator
 # Create your models here.
 
 
@@ -12,8 +13,8 @@ class Trash(models.Model):
     info_path = models.CharField(max_length=256, default=' ')
     info_txt_path = models.CharField(max_length=256, default=' ')
     info_logging_path = models.CharField(max_length=256, default=' ')
-    maximum_size = models.PositiveIntegerField(default=1000)
-    maximum_time = models.PositiveIntegerField(default=7)
+    maximum_size = models.PositiveIntegerField(default=1000, validators=[MaxValueValidator(50000000), ])
+    maximum_time = models.PositiveIntegerField(default=7, validators=[MaxValueValidator(50000000), ])
     policy_time = models.BooleanField(default=False)
     policy_size = models.BooleanField(default=False)
     is_busy = models.BooleanField(default=False)
@@ -21,7 +22,7 @@ class Trash(models.Model):
     class Meta:
         db_table = 'trashes'
 
-    def __str__(self):              # __unicode__ on Python 2
+    def __unicode__(self):              # __unicode__ on Python 2
         return os.path.abspath(self.path)
 
 
@@ -48,8 +49,8 @@ class TaskToDo(models.Model):
     file_task = models.CharField(max_length=256, choices=tasks, default=None)
     regular = models.CharField(max_length=256, default=' ')
     info_path = models.CharField(max_length=256, default=' ')
-    maximum_size = models.PositiveIntegerField(default=1000)
-    maximum_time = models.PositiveIntegerField(default=7)
+    maximum_size = models.PositiveIntegerField(default=1000, validators=[MaxValueValidator(50000000), ])
+    maximum_time = models.PositiveIntegerField(default=7,  validators=[MaxValueValidator(50000000), ])
 
     NOTDONE = 'Not done'
     INPROCESS = 'In process'
@@ -72,5 +73,5 @@ class TaskToDo(models.Model):
     class Meta:
         db_table = 'task'
 
-    def __str__(self):              # __unicode__ on Python 2
+    def __unicode__(self):              # __unicode__ on Python 2
         return self.name

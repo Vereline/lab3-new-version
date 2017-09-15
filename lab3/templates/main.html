@@ -24,10 +24,10 @@
     <table style="margin-left: auto; margin-right: auto; background-color: #E0FFFF" width= 70%>
     <tbody>
         <tr>
-            <td style="width: 100px; text-align: center"><div><a href={% url 'define_action' pk=obj.pk %}>{{ obj.name }}</a></div></td>
-            <td style="width: 100px; text-align: center"><div>{{ obj.path }}</div></td>
-            <td style="width: 100px; text-align: center"><div><a href={% url 'refresh_trash' pk=obj.pk %}>Refresh trash</a></div></td>
-            <td style="width: 100px; text-align: center"><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete trash</a></div></td>
+            <td style="width: 25%; text-align: center"><div><a href={% url 'define_action' pk=obj.pk %}>{{ obj.name }}</a></div></td>
+            <td style="width: 25%; text-align: center"><div>{{ obj.path }}</div></td>
+            <td style="width: 25%; text-align: center"><div><a href={% url 'refresh_trash' pk=obj.pk %}>Refresh trash</a></div></td>
+            <td style="width: 25%; text-align: center"><div><a href={% url 'delete_trash' pk=obj.pk %}>Delete trash</a></div></td>
         </tr>
     </tbody>
     </table>

@@ -149,14 +149,17 @@ def remove_file(request, pk):
     # REDO REDO REDO
 
     # print 'REMOVE'
-    # my_names = []
-    # for item in path:
-    #     s = ast.literal_eval(item)  # str to dict
-    #     my_names.append(s['name'])
-    #     # s = item.encode('utf-8')
-    #     # info_dict = json.loads(item)  # problems with double quotes
-    #
-    # # trash.delete_manually(my_names)
+    my_names = []
+    my_ids = []
+    for item in path:
+        s = ast.literal_eval(item)  # str to dict
+        my_names.append(s['name'])
+        my_ids.append(s['id'])
+
+        # s = item.encode('utf-8')
+        # info_dict = json.loads(item)  # problems with double quotes
+
+    trash.delete_manually(my_names, my_ids)
     logging.info('Check policies')
     trash.check_policy(dry_run=False, verbose=True)
     return define_action(request, pk)
