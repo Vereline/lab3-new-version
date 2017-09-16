@@ -38,36 +38,39 @@ def define_task(task, trash, trash_object, lock):
     current_task = task.file_task
     regex = task.regular
     smart_rm = Smart_rm.SmartRm(trash.path)
+    # print 'regex', regex
+    # print 'current', current_task
+    # print 'available', AVAILABLE_TASKS['rcfftr']
 
     elements.append(task.file_path)
     if current_task == AVAILABLE_TASKS['dbr']:
         return_code = smart_rm.operate_with_regex_removal(regex, trash, EXIT_CODES, task.file_path,
-                                                          dry_run=task.dry_run)
+                                                          dry_run=task.dry_run, verbose=task.verbose)
 
     elif current_task == AVAILABLE_TASKS['dbf']:
         return_code = smart_rm.operate_with_removal(elements, EXIT_CODES, trash,
-                                                    dry_run=task.dry_run)
+                                                    dry_run=task.dry_run, verbose=task.verbose)
 
     elif current_task == AVAILABLE_TASKS['rat']:
-        return_code = trash.restore_trash_automatically(dry_run=task.dry_run)
+        return_code = trash.restore_trash_automatically(dry_run=task.dry_run, verbose=task.verbose)
 
     elif current_task == AVAILABLE_TASKS['cat']:
-        return_code = trash.delete_automatically(dry_run=task.dry_run)
+        return_code = trash.delete_automatically(dry_run=task.dry_run, verbose=task.verbose)
 
     elif current_task == AVAILABLE_TASKS['rmfft']:
-        return_code = trash.delete_manually(elements, dry_run=task.dry_run)
+        return_code = trash.delete_manually(elements, dry_run=task.dry_run, verbose=task.verbose)
 
     elif current_task == AVAILABLE_TASKS['rcfft']:
-        return_code = trash.restore_trash_manually(elements, dry_run=task.dry_run)
+        return_code = trash.restore_trash_manually(elements, dry_run=task.dry_run, verbose=task.verbose)
 
     elif current_task == AVAILABLE_TASKS['rmfftr']:
-        return_code = trash.clean_by_regular(regex, dry_run=task.dry_run)
+        return_code = trash.clean_by_regular(regex, dry_run=task.dry_run, verbose=task.verbose)
 
     elif current_task == AVAILABLE_TASKS['rcfftr']:
-        return_code = trash.restore_by_regular(regex, dry_run=task.dry_run)
+        return_code = trash.restore_by_regular(regex, dry_run=task.dry_run, verbose=task.verbose)
 
     logging.info('Check policies')
-    trash.check_policy(task.dry_run, verbose=True)
+    trash.check_policy(task.dry_run, verbose=task.verbose)
 
     with lock:
         trash_object.is_busy = False
@@ -82,11 +85,12 @@ def define_task(task, trash, trash_object, lock):
 def manage_tasks(task, trash, trash_object, another_trash_tasks, tasks_statuses, lock):
     define_task(task, trash, trash_object, lock)
 
-    with lock:
-        for i in range(len(another_trash_tasks)):
-            another_trash_tasks[i].task_process = tasks_statuses[i]
-            another_trash_tasks[i].save()
-
+    # with lock:
+    lock.acquire()
+    for i in range(len(another_trash_tasks)):
+        another_trash_tasks[i].task_process = tasks_statuses[i]
+        another_trash_tasks[i].save()
+    lock.release()
 
         # for task in another_trash_tasks:
         #     task.task_process = task.WAITING

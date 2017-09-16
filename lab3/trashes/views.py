@@ -99,7 +99,7 @@ def define_action(request, pk):
     trash_logging = trash_object.info_logging_path
     # # trash_path = os.path.join(trash_object.path, "trash")
     # info_path = os.path.join(trash_object.path, "info")
-    logger = Logger.Logger(trash_object.info_logging_path, silent=False)
+    # logger = Logger.Logger(trash_object.info_logging_path, silent=False)
     trash_list = trash.watch_trash()
     print {"pk": pk, "trash_list": trash_list}
     return render(request, "define_action.html", {"pk": pk, "trash_list": trash_list})
@@ -135,12 +135,13 @@ def recover_file(request, pk):
 
     my_names = []
     my_ids = []
+
     for item in path:
         s = ast.literal_eval(item)  # str to dict
         my_names.append(s['name'])
         my_ids.append(s['id'])
 
-    logger = Logger.Logger(trash_object.info_logging_path, silent=False)
+    # logger = Logger.Logger(trash_object.info_logging_path, silent=False)
     trash.restore_trash_manually(my_names, custom_ids=my_ids)
     logging.info('Check policies')
     trash.check_policy(dry_run=False, verbose=True)
@@ -158,7 +159,7 @@ def do_the_task(request, pk):
     # trash_task_object.task_process = trash_task_object.DONE
     # trash_task_object.save()
 
-    trash = create_trash_object(Trash, pk)
+    trash = create_trash_object(Trash, trash_object.pk)
     lock = multiprocessing.Lock()
     waiting_tasks = []
     waiting_tasks_previous_statuses = []
