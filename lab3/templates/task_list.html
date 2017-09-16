@@ -32,7 +32,7 @@
                  {% if obj.task_process != obj.INPROCESS %}
                     <form action="{% url 'do_the_task' pk=obj.pk %}" method="post">{% csrf_token %}
 {#pk - is a personal number of task(primary key)#}
-                        <input type="submit" value="Do it">
+                        <input class="button" type="submit" value="Do it">
 
                     </form>
 

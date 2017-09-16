@@ -2,23 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import json
-import Smart_rm
-import shutil         #Contains functions for operating files
-import os
-import sys
-import Logwriter
-import Argparser
-import Trash
-import re
-import ExeptionListener
-import pprint
-import Regular
-import Logger
 import logging
-import Config_parser
-import threading
-import multiprocessing
+import os
+import pprint
+import sys
 
+import Config_parser
+import ExeptionListener
+import Logger
+import Smart_rm
+import Trash
 
 # rename here deleted file to the id
 # -i - confirm every your deletion / restore

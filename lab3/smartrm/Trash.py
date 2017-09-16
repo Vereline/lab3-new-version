@@ -56,11 +56,13 @@ class Trash(object):
         logging.info("Clean the whole trash".format())
         # remove_processes = []
         subpaths = []
+        return_code = EXIT_CODES['success']
+
         if dry_run:
             print 'clean trash'
         else:
             d = os.listdir(self.path)
-            for item in d:  # DO HERE PARALLEL
+            for item in d:
                 subpath = os.path.join(self.path, item)  # form the address
                 dict_contains = False
                 for _dict in self.log_writer.file_dict_arr:
@@ -69,8 +71,6 @@ class Trash(object):
                         break
                 if dict_contains:
                     subpaths.append(subpath)
-
-                        ####### do this thing with multiprocessing pol map
             #     remove_proc = multiprocessing.Process(target=self.remove_item_from_trash_for_automatical,
             #                                           args=(subpath, dict_contains,))
             #     remove_processes.append(remove_proc)
@@ -79,10 +79,18 @@ class Trash(object):
             #     proc.start()
             # for proc in remove_processes:
             #     proc.join()
-            thread_pool = Pool(processes=multiprocessing.cpu_count()*2)
-            thread_pool.map(remove_item_from_trash, subpaths)
-            thread_pool.close()
-            thread_pool.join()
+            try:
+                thread_pool = Pool(processes=multiprocessing.cpu_count()*2)
+                thread_pool.map(remove_item_from_trash, subpaths)
+                thread_pool.close()
+                thread_pool.join()
+            except ExeptionListener.TrashError as ex:
+                logging.error(ex.msg)
+                return_code = EXIT_CODES['error']
+            except Exception as ex:
+                logging.error(ex.message)
+                return_code = EXIT_CODES['error']
+
             if verbose:
                 print 'trash cleaned'
             logging.info("Clean information about files".format())
@@ -91,7 +99,7 @@ class Trash(object):
             clean_txt = open(self.log_writer.file_dict_path_txt, 'w')
             clean_txt.close()
 
-            return EXIT_CODES['success']
+            return return_code
 
     def delete_manually(self, paths, custom_ids='', dry_run=False, verbose=False, interactive=False):  # not checked
         # delete one file manually
@@ -171,7 +179,6 @@ class Trash(object):
             thread_pool.map(remove_item_from_trash, subpaths)
             thread_pool.close()
             thread_pool.join()
-        ########### do this thing with multiprocessing pool
         # for proc in remove_processes:
         #     logging.info('Delete item from trash'.format())
         #     proc.start()
@@ -316,7 +323,6 @@ class Trash(object):
                     self.log_writer.write_to_json(dry_run)
                     self.log_writer.write_to_txt(dry_run)
 
-        # not need because of O(1) ???
         # for proc in restore_processes:
         #     proc.start()
         # for proc in restore_processes:
@@ -453,6 +459,10 @@ class Trash(object):
 
         restore_processes = []
         names, ids = self.get_names_by_regular(regex)
+
+        if len(ids) < 1:
+            return_code = EXIT_CODES['error']
+
         for file_id in ids:
             clean_path = self.get_path_by_id(file_id, self.path)
             destination_path = self.log_writer.get_path(file_id)
@@ -540,10 +550,13 @@ class Trash(object):
 
     def clean_by_regular(self, regex, dry_run=False, verbose=False, interactive=False):  # not tested
         names, ids = self.get_names_by_regular(regex)
-        # do here not cycle but parallel
         return_code = EXIT_CODES['success']
         clean_processes = []
         subpaths = []
+
+        if len(ids) < 1:
+            return_code = EXIT_CODES['error']
+
         for file_id in ids:
             clean_path = self.get_path_by_id(file_id, self.path)
             name = self.log_writer.get_name(file_id)
@@ -553,7 +566,7 @@ class Trash(object):
             if (answer is not None) and (answer is False):
                 continue
             if os.path.isdir(clean_path):
-                # logging.info("Remove directory {item}".format(item=name))
+                logging.info("Remove directory {item}".format(item=name))
                 if not dry_run:
                     if verbose:
                         print 'remove item'
@@ -573,13 +586,14 @@ class Trash(object):
                 else:
                     print 'remove item'
             elif not os.path.isdir(clean_path):
-                # logging.info("Remove file {item}".format(item=name))
+                logging.info("Remove file {item}".format(item=name))
                 if not dry_run:
                     if verbose:
                         print 'remove item'
                     if check_file_path(clean_path):
-                        proc = multiprocessing.Process(target=os.remove, args=(clean_path,))
-                        clean_processes.append(proc)
+                        subpaths.append(clean_path)
+                        # proc = multiprocessing.Process(target=os.remove, args=(clean_path,))
+                        # clean_processes.append(proc)
                         # os.remove(clean_path)
                     else:
                         return_code = EXIT_CODES['error']
@@ -590,12 +604,16 @@ class Trash(object):
                 else:
                     print 'remove item'
 
-        for proc in clean_processes:
-            logging.info('Remove item')
-            proc.start()
-
-        for proc in clean_processes:
-            proc.join()
+        thread_pool = Pool(processes=multiprocessing.cpu_count() * 2)
+        thread_pool.map(remove_item_from_trash, subpaths)
+        thread_pool.close()
+        thread_pool.join()
+        # for proc in clean_processes:
+        #     logging.info('Remove item')
+        #     proc.start()
+        #
+        # for proc in clean_processes:
+        #     proc.join()
 
         return return_code
 
@@ -663,7 +681,7 @@ def remove_item_from_trash(subpath, dict_contains=True):
         if dict_contains:
             if os.path.isdir(subpath):
                 regular_rmtree(subpath)
-                # shutil.rmtree(subpath) #### change it
+                # shutil.rmtree(subpath)
             elif not os.path.isdir(subpath):
                 os.remove(subpath)
         logging.info('finish process in pool')

@@ -20,6 +20,9 @@ class SmartRm(object):
     def operate_with_removal(self, items, exit_codes, trash, dry_run=False, verbose=False, interactive=False):
         return_code = exit_codes['success']
         removal_processes = []
+
+        semaphore = multiprocessing.Semaphore(multiprocessing.cpu_count() * 2)
+
         for item in items:
             if interactive:
                 answer = self.ask_for_confirmation(item)
@@ -35,16 +38,15 @@ class SmartRm(object):
                     logging.error('Item {file} is a system unit'.format(file=item))
                     return_code = exit_codes['error']
                 else:
-                    print item
+                    # print item
                     file_id = trash.log_writer.create_file_dict(item)
                     item = rename_file_name_to_id(item, file_id, dry_run)
                     trash.log_writer.write_to_json(dry_run)
                     trash.log_writer.write_to_txt(dry_run)
 
-                    rem_process = multiprocessing.Process(target=self.remove_to_trash_file, args=(item, dry_run, verbose,))
+                    rem_process = multiprocessing.Process(target=self.remove_to_trash_file,
+                                                          args=(item, dry_run, verbose, semaphore))
                     removal_processes.append(rem_process)
-
-        # ф-я, которая рассчитывала количество потоков
 
         for rem_process in removal_processes:
             rem_process.start()
@@ -59,6 +61,10 @@ class SmartRm(object):
         remove_processes = []
         return_code = exit_codes['success']
 
+        semaphore = multiprocessing.Semaphore(multiprocessing.cpu_count() * 2)
+
+        if len(items) < 1:
+            return_code = exit_codes['error']
         for item in items:
             if interactive:
                 answer = self.ask_for_confirmation(item)
@@ -79,7 +85,7 @@ class SmartRm(object):
                     trash.log_writer.write_to_json(dry_run)
                     trash.log_writer.write_to_txt(dry_run)
                     rem_process = multiprocessing.Process(target=self.remove_to_trash_file,
-                                                          args=(item, dry_run, verbose,))
+                                                          args=(item, dry_run, verbose, semaphore,))
                     remove_processes.append(rem_process)
 
         for rem_process in remove_processes:
@@ -89,23 +95,25 @@ class SmartRm(object):
 
         return return_code
 
-    def remove_to_trash_file(self, path, dry_run, verbose):  # works
-        logging.info('Remove {path}'.format(path=path))
-
-        try:
-            if not dry_run:
-                # head, tail = os.path.split(path)
-                # new_path = os.path.join(self.trash_path, tail)
-                shutil.move(path, self.trash_path)
-                # return new_path
-            else:
-                print 'remove file'
-            if verbose:
-                print path + ' removed'
-        except ExeptionListener.WrongItemException as ex:
-            logging.error(ex.msg)
-        except Exception as ex:
-            logging.error(ex.message)
+    def remove_to_trash_file(self, path, dry_run, verbose, semaphore):  # works
+        with semaphore:
+            # print 'with semaphore'
+            logging.info(multiprocessing.current_process())
+            logging.info('Remove {path}'.format(path=path))
+            try:
+                if not dry_run:
+                    # head, tail = os.path.split(path)
+                    # new_path = os.path.join(self.trash_path, tail)
+                    shutil.move(path, self.trash_path)
+                    # return new_path
+                else:
+                    print 'remove file'
+                if verbose:
+                    print path + ' removed'
+            except ExeptionListener.WrongItemException as ex:
+                logging.error(ex.msg)
+            except Exception as ex:
+                logging.error(ex.message)
 
 
 def check_file_path(path):

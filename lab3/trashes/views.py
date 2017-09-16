@@ -117,7 +117,7 @@ def define_action(request, pk):
                                 q=ask_for_confirmation("trash"))
     # trash_path = os.path.join(trash_object.path, "trash")
     # info_path = os.path.join(trash_object.path, "info")
-
+    logger = Logger.Logger(trash_object.info_logging_path, silent=False)
     trash_list = trash.watch_trash()
     print {"pk": pk, "trash_list": trash_list}
     return render(request, "define_action.html", {"pk": pk, "trash_list": trash_list})
