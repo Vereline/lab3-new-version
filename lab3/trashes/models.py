@@ -31,7 +31,7 @@ class TaskToDo(models.Model):
     name = models.CharField(max_length=256, default=' ')
     file_path = models.CharField(max_length=256, default=' ')
     trash = models.ForeignKey(Trash, default=None)
-    force = models.BooleanField(default=False)
+    verbose = models.BooleanField(default=False)
     dry_run = models.BooleanField(default=False)
     silent = models.BooleanField(default=False)
 
@@ -48,9 +48,9 @@ class TaskToDo(models.Model):
 
     file_task = models.CharField(max_length=256, choices=tasks, default=None)
     regular = models.CharField(max_length=256, default=' ')
-    info_path = models.CharField(max_length=256, default=' ')
-    maximum_size = models.PositiveIntegerField(default=1000, validators=[MaxValueValidator(50000000), ])
-    maximum_time = models.PositiveIntegerField(default=7,  validators=[MaxValueValidator(50000000), ])
+    # info_path = models.CharField(max_length=256, default=' ')
+    # maximum_size = models.PositiveIntegerField(default=1000, validators=[MaxValueValidator(50000000), ])
+    # maximum_time = models.PositiveIntegerField(default=7,  validators=[MaxValueValidator(50000000), ])
 
     NOTDONE = 'Not done'
     INPROCESS = 'In process'
