@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import threading
-import Trash
-import Smart_rm
-import Logger
+import smartrm.Trash as Trash
+import smartrm.Smart_rm as Smart_rm
+import smartrm.Logger as Logger
 import logging
 import multiprocessing
 import time

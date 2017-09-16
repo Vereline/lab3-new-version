@@ -1,23 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Trash, TaskToDo
-from django.shortcuts import get_object_or_404, render, redirect, HttpResponse
-import os
-import smartrm.Trash as smartrm_trash
-#import smartrm.Smart_rm as smart_rm
-# from smartrm.Trash import Trash
-import smartrm.Logger as Logger
-import logging
-from .forms import TrashForm, TaskForm
-from django.urls import reverse_lazy
-import json
 import ast
-import smartrm.threading_smartrm as threading_smrm
-import time
+import logging
 import multiprocessing
+
+import smartrm.Logger as Logger
+import smartrm.Trash as smartrm_trash
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+
+import trashes.threading_smartrm as threading_smrm
+from .forms import TrashForm, TaskForm
+from .models import Trash, TaskToDo
 
 # Create your views here.
 
@@ -84,7 +80,7 @@ class RefreshTask(UpdateView):
     success_url = reverse_lazy('task_list')
     template_name = "refresh_task.html"
     model = TaskToDo
-    fields = ('name', 'file_path', 'file_task', 'info_path', 'force', 'dry_run', 'silent',
+    fields = ('name', 'file_path', 'file_task', 'force', 'dry_run', 'silent',
               'maximum_time', 'maximum_size', 'trash', 'regular', )
 
 
