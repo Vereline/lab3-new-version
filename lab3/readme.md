@@ -3,6 +3,7 @@ This is web-interface for smartrm
 install smartrm and Django to use this interface
 
 you can do with Trash:
+
 	1. create a new one
 	2. refresh information about it
 	3. delete trash from interface
